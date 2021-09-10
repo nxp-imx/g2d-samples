@@ -1,41 +1,40 @@
-#/*---------------------------------------------------------------------------*/
-#/* Copyright 2021 NXP                                                        */
-#/*                                                                           */
-#/* NXP Confidential. This software is owned or controlled by NXP and may only*/
-#/* be used strictly in accordance with the applicable license terms.         */
-#/* By expressly accepting such terms or by downloading, installing,          */
-#/* activating and/or otherwise using the software, you are agreeing that you */
-#/* have read, and that you agree to comply with and are bound by, such       */
-#/* license terms. If you do not agree to be bound by the applicable license  */
-#/* terms, then you may not retain, install, activate or otherwise use the    */
-#/* software.                                                                 */
-#/*---------------------------------------------------------------------------*/
+#*
+#* Copyright 2021 NXP
+#* All rights reserved.
+#*
+#* SPDX - License - Identifier : BSD - 3 - Clause
+#*
 #
 #
 # Linux build file for g2d ocl test
 #
-.PHONY: clean
-
-ROOTFS ?= $(SDKTARGETSYSROOT)
-
-ROOTFS_USR :=$(ROOTFS)/usr
-
-OBJS := g2d_ocl_csc.o
-
-
-CFLAGS += -I ../../include -I $(ROOTFS)/usr/include -I os/linux -g
-
-LDFLAGS += -Wl,-rpath-link,$(ROOTFS)/usr/lib
-LDFLAGS += -L ../../lib -lg2d -lOpenCL --sysroot=$(ROOTFS)
-
 TARGET := g2d_ocl_csc
+PREFIX ?= /usr
 
-# build as shared library
-$(TARGET): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+CC ?= $(CROSS_COMPILE)gcc
+LDFLAGS +=  -lg2d
 
+
+OBJECTS += \
+   g2d_ocl_csc.o
+
+
+
+$(TARGET) : $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
+
+.PHONY: install
+install: $(TARGET)
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp $< $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	mkdir -p $(DESTDIR)/opt/g2d_samples
+	ln -sf /usr/bin/$(TARGET) $(DESTDIR)/opt/g2d_samples/$(TARGET)
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	rm -f $(DESTDIR)/opt/g2d_samples/$(TARGET)
+
+.PHONY: clean
 clean:
-	-@rm $(TARGET) $(OBJS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+	rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
