@@ -9,14 +9,25 @@
 #
 #
 SUBDIRS := $(wildcard */.)
+SUBINSTALL = $(addsuffix .install,$(SUBDIRS))
+SUBCLEAN = $(addsuffix .clean,$(SUBDIRS))
 
-.PHONY: install $(SUBDIRS)
+.PHONY: all $(SUBDIRS)
 
-install: $(SUBDIRS)
+all: $(SUBDIRS)
 
 $(SUBDIRS):
-	$(MAKE) install -C $@
+	$(MAKE) -C $@
 
-.PHONY: clean
-clean: 
-	find ./ -name "*.o" -delete
+.PHONY: install $(SUBINSTALL)
+
+install: $(SUBINSTALL)
+
+$(SUBINSTALL): %.install:
+	$(MAKE) install -C $*
+
+.PHONY: clean $(SUBCLEAN)
+clean: $(SUBCLEAN)
+
+$(SUBCLEAN): %.clean:
+	$(MAKE) clean -C $*
