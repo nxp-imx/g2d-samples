@@ -8,7 +8,7 @@
 # Linux build file for g2d test code
 #
 #
-SUBDIRS := $(wildcard */.)
+SUBDIRS := $(wildcard *_test/.)
 SUBINSTALL = $(addsuffix .install,$(SUBDIRS))
 SUBCLEAN = $(addsuffix .clean,$(SUBDIRS))
 
