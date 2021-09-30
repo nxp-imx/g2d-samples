@@ -12,7 +12,7 @@
 TARGET := g2d_overlay_test
 
 CC ?= $(CROSS_COMPILE)gcc
-LDFLAGS =  -lg2d
+LDFLAGS +=  -lg2d
 
 OBJECTS += \
 	g2d_overlay_test.o
