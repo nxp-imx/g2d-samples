@@ -25,14 +25,11 @@ $(TARGET) : $(OBJECTS)
 
 .PHONY: install
 install: $(TARGET)
-	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	cp $< $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	mkdir -p $(DESTDIR)/opt/g2d_samples
-	ln -sf /usr/bin/$(TARGET) $(DESTDIR)/opt/g2d_samples/$(TARGET)
+	mkdir -p $(DESTDIR)/opt/g2d_samples/
+	cp $< $(DESTDIR)/opt/g2d_samples/$(TARGET)
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	rm -f $(DESTDIR)/opt/g2d_samples/$(TARGET)
 
 .PHONY: clean
