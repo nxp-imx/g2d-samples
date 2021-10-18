@@ -35,6 +35,7 @@ extern "C" {
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #define TFAIL -1
 #define TPASS 0
@@ -447,15 +448,43 @@ int quitAndExit() {
   return -EAGAIN;
 }
 
+static const struct option longOptions[] = {
+    {"help", no_argument, NULL, 'h'},
+    {"verbose", no_argument, NULL, 'v'},
+    {"wait", no_argument, NULL, 'w'},
+    {NULL, 0, NULL, 0}};
+
+
 int main(int argc, char **argv) {
   int retval = TPASS;
   struct fb_var_screeninfo screen_info;
   struct fb_fix_screeninfo fb_info;
   struct timeval tv1, tv2;
   void *g2dHandle = NULL;
-  struct g2d_buf *g2dDataBuf[8];
+  struct g2d_buf *g2dDataBuf[8] = {NULL};
   int g2d_feature_available = 0;
+  int wait = 0;
+  int no_source_file = 1;
 
+  while (1) {
+    int optionIndex;
+    int ic =
+        getopt_long(argc, argv, "hvw", longOptions, &optionIndex);
+    if (ic == -1) {
+      break;
+    }
+
+    switch (ic) {
+    case 'v':
+    case 'h':
+      printf("%s [--wait]", argv[0]);
+      return 0;
+      break;
+    case 'w':
+      wait = 1;
+      break;
+    }
+  }
   if ((fd_fb0 = open("/dev/fb0", O_RDWR, 0)) < 0) {
     if ((fd_fb0 = open("/dev/graphics/fb0", O_RDWR, 0)) < 0) {
       printf("Unable to open fb0\n");
@@ -488,36 +517,39 @@ int main(int argc, char **argv) {
   g_fb0_size = screen_info.xres_virtual * screen_info.yres_virtual *
                screen_info.bits_per_pixel / 8;
 
+  if (g2d_open(&g2dHandle) == -1 || g2dHandle == NULL) {
+    printf("Fail to open g2d device!\n");
+    goto err2;
+  }
+
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xff000000);
   //TODO parse the para from filename or an xml which descript the blit.
   g2dDataBuf[0] = createG2DTextureBuf("1024x768-rgb565.rgb");
   if (!g2dDataBuf[0])
-      return -EINVAL;
+    goto err2;
 
   g2dDataBuf[1] = createG2DTextureBuf("800x600-bgr565.rgb");
   if (!g2dDataBuf[1])
-      return -EINVAL;
+    goto err2;
 
   g2dDataBuf[2] = createG2DTextureBuf("480x360-bgr565.rgb");
   if (!g2dDataBuf[2])
-      return -EINVAL;
+    goto err2;
+
   g2dDataBuf[3] = createG2DTextureBuf("176x144-yuv420p.yuv");
   if (!g2dDataBuf[3])
-      return -EINVAL;
+    goto err2;
 
   g2dDataBuf[4] = createG2DTextureBuf("352x288-nv16.yuv");
   if (!g2dDataBuf[4])
-      return -EINVAL;
+    goto err2;
 
   g2dDataBuf[5] = createG2DTextureBuf("352x288-yuyv.yuv");
   if (!g2dDataBuf[5])
-      return -EINVAL;
+    goto err2;
 
   g2dDataBuf[6] = g2dDataBuf[7] = NULL;
-  if (g2d_open(&g2dHandle) == -1 || g2dHandle == NULL) {
-    printf("Fail to open g2d device!\n");
-    return -EINVAL;
-  }
+  no_source_file = 0;
 
   gettimeofday(&tv1, NULL);
 
@@ -566,7 +598,7 @@ int main(int argc, char **argv) {
       "Overlay rendering time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
-  if (0 == quitAndExit())
+  if (wait && (0 == quitAndExit()))
       goto err2;
 
   /* g2d_blit with blur effect */
@@ -617,7 +649,7 @@ int main(int argc, char **argv) {
       "Overlay rendering with blur effect time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
-  if (0 == quitAndExit())
+  if (wait && (0 == quitAndExit()))
       goto err2;
 
   /* overlay test with multiblit */
@@ -634,10 +666,23 @@ int main(int argc, char **argv) {
       "Overlay rendering with multiblit time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
-  if (0 == quitAndExit())
+  if (wait && (0 == quitAndExit()))
       goto err2;
 
 err2:
+  if (no_source_file) {
+      printf("prepare the jpg file, and create with below cmd\n"
+              "\tffmpeg -i 1024x768.jpg -pix_fmt rgb565le 1024x768-rgb565.rgb\n"
+              "\tffmpeg -i 800x600.jpg -pix_fmt bgr565le 800x600-bgr565.rgb\n"
+              "\tffmpeg -i 480x360.jpg -pix_fmt bgr565le 480x360-bgr565.rgb\n"
+              "\tffmpeg -i 352x288.jpg -pix_fmt yuyv422 352x288-yuyv.yuv \n"
+              "\tffmpeg -i 176x144.jpg -pix_fmt yuv420p 176x144-yuv420p.yuv\n"
+              "\tgst-launch-1.0 videotestsrc num-buffers=1 ! \\\n"
+              "\t\tvideo/x-raw,format=NV16,width=352,height=288 ! \\\n"
+              "\t\tfilesink location=352x288-nv16.yuv\n");
+      retval = -EINVAL;
+  }
+
   if (!g2dHandle)
       g2d_close(g2dHandle);
 
