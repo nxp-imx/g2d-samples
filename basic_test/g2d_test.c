@@ -10,6 +10,7 @@
  */
 
 #include "g2d.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -47,7 +48,7 @@ static int parseFormat(const char *fmtStr, int *pSrcFmt, int *pDstFmt) {
     *pSrcFmt = G2D_RGBA8888;
   } else if (0 == strncmp(srcFmt, "nv12", 4)) {
     *pSrcFmt = G2D_NV12;
-  }else {
+  } else {
     printf("unknown srcFmt=%s\n", srcFmt);
     return -EINVAL;
   }
@@ -92,8 +93,7 @@ int main(int argc, char *argv[]) {
 
   while (1) {
     int optionIndex;
-    int ic =
-        getopt_long(argc, argv, "hvs:f:1", longOptions, &optionIndex);
+    int ic = getopt_long(argc, argv, "hvs:f:1", longOptions, &optionIndex);
     if (ic == -1) {
       break;
     }
@@ -101,7 +101,8 @@ int main(int argc, char *argv[]) {
     switch (ic) {
     case 'v':
     case 'h':
-      fprintf(stdout, "usage: %s -s widthxheight -f sourceformat-destformat", argv[0]);
+      fprintf(stdout, "usage: %s -s widthxheight -f sourceformat-destformat",
+              argv[0]);
       return 0;
       break;
 
@@ -137,8 +138,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (0 >= test_width) test_width = TEST_WIDTH;
-  if (0 >= test_height) test_height = TEST_HEIGHT;
+  if (0 >= test_width)
+    test_width = TEST_WIDTH;
+  if (0 >= test_height)
+    test_height = TEST_HEIGHT;
 
   test_width = (test_width + 15) & ~15;
   test_height = (test_height + 15) & ~15;
@@ -149,15 +152,15 @@ int main(int argc, char *argv[]) {
   for (i = 0; i < 128; i++) {
     s_buf = g2d_alloc(SIZE_1M * ((i % 4) + 1), 1);
     if (s_buf) {
-        g2d_free(s_buf);
+      g2d_free(s_buf);
     } else {
-        printf("g2d_alloc stress test fail\n");
+      printf("g2d_alloc stress test fail\n");
     }
     d_buf = g2d_alloc(SIZE_1M * ((i % 16) + 1), 0);
     if (d_buf) {
-        g2d_free(d_buf);
+      g2d_free(d_buf);
     } else {
-        printf("g2d_alloc stress test fail\n");
+      printf("g2d_alloc stress test fail\n");
     }
   }
 
