@@ -76,7 +76,7 @@ static const struct option longOptions[] = {
 int main(int argc, char *argv[]) {
   int i, j, diff = 0;
   struct timeval tv1, tv2;
-  int status = -EINVAL;
+  int g2d_feature_available = 0;
   int test_width = 0, test_height = 0;
   void *handle = NULL;
   struct g2d_surface src, dst;
@@ -192,8 +192,8 @@ int main(int argc, char *argv[]) {
   dst.height = test_height;
   dst.rot = G2D_ROTATION_0;
 
-  g2d_query_feature(handle, G2D_DST_YUV, &status);
-  if (status == 1) {
+  g2d_query_feature(handle, G2D_DST_YUV, &g2d_feature_available);
+  if (g2d_feature_available == 1) {
     printf("---------------- test dst YUV feature ----------------\n");
 
     src.format = G2D_RGBA8888;
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]) {
            1000000 / diff, test_width * test_height / diff);
 
     src.format = G2D_YUYV;
-    dst.format = G2D_NV16;
+    dst.format = G2D_NV12;
 
     for (i = 0; i < test_height; i++) {
       for (j = 0; j < test_width; j++) {
@@ -241,12 +241,25 @@ int main(int argc, char *argv[]) {
         char *s =
             (char *)(((char *)s_buf->buf_vaddr) + (i * test_width + j) * 2);
         char *y = (char *)(((char *)d_buf->buf_vaddr) + (i * test_width + j));
-        char *uv = y + test_width * test_height;
 
-        if (y[0] != s[0] || uv[0] != s[1]) {
-          printf("YUY2->NV16 wrong at [%d,%d] Y = 0x%x (exp 0x%x), UV = 0x%x "
-                 "(expect 0x%x)\n",
-                 i, j, y[0], s[0], uv[0], s[1]);
+        if (y[0] != s[0]) {
+          printf("YUY2 to NV12 is wrong at [%d,%d] Y = 0x%x (expect 0x%x)\n", i,
+                 j, y[0], s[0]);
+          break;
+        }
+
+        if (i & 1) {
+          char *ss = s - test_width * 2;
+          char s_uv = (s[1] + ss[1]) / 2;
+          char *uv =
+              (char *)(((char *)d_buf->buf_vaddr) + test_width * test_height +
+                       (i / 2 * test_width + j));
+
+          if (uv[0] != s_uv) {
+            printf("YUY2 to NV12 is wrong at [%d,%d] UV = 0x%x (expect 0x%x)\n",
+                   i, j, uv[0], s_uv);
+            break;
+          }
         }
       }
     }
@@ -263,7 +276,7 @@ int main(int argc, char *argv[]) {
     diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
            TEST_LOOP;
 
-    printf("YUY2 to NV16 time %dus, %dfps, %dMpixel/s ........\n", diff,
+    printf("YUY2 to NV12 time %dus, %dfps, %dMpixel/s ........\n", diff,
            1000000 / diff, test_width * test_height / diff);
   }
 
