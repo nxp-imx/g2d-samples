@@ -23,6 +23,7 @@ extern "C" {
 #include <errno.h>
 #include <fcntl.h>
 #include <g2d.h>
+#include <getopt.h>
 #include <linux/fb.h>
 #include <malloc.h>
 #include <math.h>
@@ -35,7 +36,6 @@ extern "C" {
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <getopt.h>
 
 #define TFAIL -1
 #define TPASS 0
@@ -61,22 +61,21 @@ struct img_info {
   struct g2d_buf *img_ptr;
 };
 
-struct g2d_buf *createG2DTextureBuf(char *filename)
-{
+struct g2d_buf *createG2DTextureBuf(char *filename) {
   FILE *stream = NULL;
   int size = 0;
   struct g2d_buf *buf = NULL;
   int len = 0;
-  
+
   stream = fopen(filename, "rb");
   if (!stream) {
-      printf("Fail to open data file %s\n", filename);
-      return NULL;
+    printf("Fail to open data file %s\n", filename);
+    return NULL;
   }
 
   fseek(stream, 0, SEEK_END);
   size = ftell(stream);
-  
+
   fseek(stream, 0L, SEEK_SET);
 #if CACHEABLE
   buf = g2d_alloc(size, 1); // alloc physical contiguous memory for source
@@ -87,7 +86,7 @@ struct g2d_buf *createG2DTextureBuf(char *filename)
 
   len = fread((void *)buf->buf_vaddr, 1, size, stream);
   if (len != size)
-      printf("fread %s error\n", filename);
+    printf("fread %s error\n", filename);
 
 #if CACHEABLE
   g2d_cache_op(buf, G2D_CACHE_FLUSH);
@@ -97,10 +96,7 @@ struct g2d_buf *createG2DTextureBuf(char *filename)
   return buf;
 }
 
-void releaseG2DTextureBuf (struct g2d_buf *buf)
-{
-    g2d_free(buf);
-}
+void releaseG2DTextureBuf(struct g2d_buf *buf) { g2d_free(buf); }
 
 static void draw_image_to_framebuffer(void *handle, struct g2d_buf *buf,
                                       int img_width, int img_height,
@@ -211,10 +207,10 @@ static void draw_image_to_framebuffer(void *handle, struct g2d_buf *buf,
   if (set_blur) {
     g2d_disable(handle, G2D_BLUR);
   }
-
 }
 
-static void draw_image_with_multiblit(void *handle, struct img_info *img_info_ptr[],
+static void draw_image_with_multiblit(void *handle,
+                                      struct img_info *img_info_ptr[],
                                       const int layers,
                                       struct fb_var_screeninfo *screen_info) {
   int i, n;
@@ -272,14 +268,12 @@ static void draw_image_with_multiblit(void *handle, struct img_info *img_info_pt
       break;
     case G2D_NV16:
       sp[i]->s.planes[0] = buf->buf_paddr;
-      sp[i]->s.planes[1] =
-          buf->buf_paddr + sp[i]->s.width * sp[i]->s.height;
+      sp[i]->s.planes[1] = buf->buf_paddr + sp[i]->s.width * sp[i]->s.height;
       sp[i]->s.global_alpha = 0xff;
       break;
     case G2D_I420:
       sp[i]->s.planes[0] = buf->buf_paddr;
-      sp[i]->s.planes[1] =
-          buf->buf_paddr + sp[i]->s.width * sp[i]->s.height;
+      sp[i]->s.planes[1] = buf->buf_paddr + sp[i]->s.width * sp[i]->s.height;
       sp[i]->s.planes[2] =
           sp[i]->s.planes[1] + sp[i]->s.width * sp[i]->s.height / 4;
       sp[i]->s.global_alpha = 0x80;
@@ -302,12 +296,10 @@ static void draw_image_with_multiblit(void *handle, struct img_info *img_info_pt
 
   g2d_disable(handle, G2D_GLOBAL_ALPHA);
   g2d_disable(handle, G2D_BLEND);
-
 }
 
 void Test_g2d_multi_blit(void *handle, struct g2d_buf *buf[],
-        struct fb_var_screeninfo *screen_info)
-{
+                         struct fb_var_screeninfo *screen_info) {
   int i = 0;
   const int layers = 8;
   struct img_info *img_info_ptr[layers];
@@ -407,9 +399,8 @@ void Test_g2d_multi_blit(void *handle, struct g2d_buf *buf[],
   draw_image_with_multiblit(handle, img_info_ptr, layers, screen_info);
 }
 
-void clear_screen_with_g2d(void *handle,
-        struct fb_var_screeninfo *screen_info, int color)
-{
+void clear_screen_with_g2d(void *handle, struct fb_var_screeninfo *screen_info,
+                           int color) {
   struct g2d_surface dst;
 
   dst.planes[0] = g_fb0_phys;
@@ -429,17 +420,15 @@ void clear_screen_with_g2d(void *handle,
 
   g2d_clear(handle, &dst);
   g2d_finish(handle);
-
 }
 
 int quitAndExit() {
   int ch = -1;
 
   printf("\nc: continue, q: quit\n");
-  while (ch=getchar())
-  {
+  while (ch = getchar()) {
     if ('c' == ch || 'q' == ch || EOF == ch)
-        break;
+      break;
   }
 
   if ('q' == ch)
@@ -448,12 +437,10 @@ int quitAndExit() {
   return -EAGAIN;
 }
 
-static const struct option longOptions[] = {
-    {"help", no_argument, NULL, 'h'},
-    {"verbose", no_argument, NULL, 'v'},
-    {"wait", no_argument, NULL, 'w'},
-    {NULL, 0, NULL, 0}};
-
+static const struct option longOptions[] = {{"help", no_argument, NULL, 'h'},
+                                            {"verbose", no_argument, NULL, 'v'},
+                                            {"wait", no_argument, NULL, 'w'},
+                                            {NULL, 0, NULL, 0}};
 
 int main(int argc, char **argv) {
   int retval = TPASS;
@@ -468,8 +455,7 @@ int main(int argc, char **argv) {
 
   while (1) {
     int optionIndex;
-    int ic =
-        getopt_long(argc, argv, "hvw", longOptions, &optionIndex);
+    int ic = getopt_long(argc, argv, "hvw", longOptions, &optionIndex);
     if (ic == -1) {
       break;
     }
@@ -523,7 +509,7 @@ int main(int argc, char **argv) {
   }
 
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xff000000);
-  //TODO parse the para from filename or an xml which descript the blit.
+  // TODO parse the para from filename or an xml which descript the blit.
   g2dDataBuf[0] = createG2DTextureBuf("1024x768-rgb565.rgb");
   if (!g2dDataBuf[0])
     goto err2;
@@ -553,45 +539,37 @@ int main(int argc, char **argv) {
 
   gettimeofday(&tv1, NULL);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[0],
-                            1024, 768, 1024 * 768 * 2, G2D_RGB565,
-                            &screen_info,
-                            0, 0, 1024, 768, 0, G2D_ROTATION_0, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[0], 1024, 768, 1024 * 768 * 2,
+                            G2D_RGB565, &screen_info, 0, 0, 1024, 768, 0,
+                            G2D_ROTATION_0, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            100, 40, 500, 300, 1, G2D_ROTATION_0, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 100, 40, 500, 300, 1,
+                            G2D_ROTATION_0, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[2],
-                            480, 360, 480 * 360 * 2, G2D_BGR565,
-                            &screen_info,
-                            350, 260, 400, 300, 0, G2D_ROTATION_0, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[2], 480, 360, 480 * 360 * 2,
+                            G2D_BGR565, &screen_info, 350, 260, 400, 300, 0,
+                            G2D_ROTATION_0, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            650, 450, 300, 200, 1, G2D_ROTATION_90, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 650, 450, 300, 200, 1,
+                            G2D_ROTATION_90, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            50, 400, 300, 200, 0, G2D_ROTATION_180, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 50, 400, 300, 200, 0,
+                            G2D_ROTATION_180, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[3],
-                            176, 144, 176 * 144 * 3 / 2, G2D_I420,
-                            &screen_info, 550, 40, 150, 120,
-                            0, G2D_ROTATION_0, 0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[3], 176, 144,
+                            176 * 144 * 3 / 2, G2D_I420, &screen_info, 550, 40,
+                            150, 120, 0, G2D_ROTATION_0, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[4],
-                            352, 288, 352 * 288 * 2, G2D_NV16,
-                            &screen_info, 0, 620, 176, 144, 1, G2D_ROTATION_0,
-                            0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[4], 352, 288, 352 * 288 * 2,
+                            G2D_NV16, &screen_info, 0, 620, 176, 144, 1,
+                            G2D_ROTATION_0, 0);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[5],
-                            352, 288, 352 * 288 * 2, G2D_YUYV,
-                            &screen_info, 420, 620, 176, 144, 1, G2D_ROTATION_0,
-                            0);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[5], 352, 288, 352 * 288 * 2,
+                            G2D_YUYV, &screen_info, 420, 620, 176, 144, 1,
+                            G2D_ROTATION_0, 0);
 
   gettimeofday(&tv2, NULL);
   printf(
@@ -599,105 +577,94 @@ int main(int argc, char **argv) {
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
   if (wait && (0 == quitAndExit()))
-      goto err2;
+    goto err2;
 
   /* g2d_blit with blur effect */
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xff000000);
 
   gettimeofday(&tv1, NULL);
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[0],
-                            1024, 768, 1024 * 768 * 2, G2D_RGB565,
-                            &screen_info,
-                            0, 0, 1024, 768, 1, G2D_ROTATION_0, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[0], 1024, 768, 1024 * 768 * 2,
+                            G2D_RGB565, &screen_info, 0, 0, 1024, 768, 1,
+                            G2D_ROTATION_0, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            100, 40, 500, 300, 1, G2D_ROTATION_0, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 100, 40, 500, 300, 1,
+                            G2D_ROTATION_0, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[2],
-                            480, 360, 480 * 360 * 2, G2D_BGR565,
-                            &screen_info,
-                            350, 260, 400, 300, 0, G2D_ROTATION_0, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[2], 480, 360, 480 * 360 * 2,
+                            G2D_BGR565, &screen_info, 350, 260, 400, 300, 0,
+                            G2D_ROTATION_0, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            650, 450, 300, 200, 1, G2D_ROTATION_90, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 650, 450, 300, 200, 1,
+                            G2D_ROTATION_90, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1],
-                            800, 600, 800 * 600 * 2, G2D_BGR565,
-                            &screen_info,
-                            50, 400, 300, 200, 0, G2D_ROTATION_180, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[1], 800, 600, 800 * 600 * 2,
+                            G2D_BGR565, &screen_info, 50, 400, 300, 200, 0,
+                            G2D_ROTATION_180, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[3],
-                            176, 144, 176 * 144 * 3 / 2, G2D_I420,
-                            &screen_info, 550, 40, 150, 120,
-                            0, G2D_ROTATION_0, 1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[3], 176, 144,
+                            176 * 144 * 3 / 2, G2D_I420, &screen_info, 550, 40,
+                            150, 120, 0, G2D_ROTATION_0, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[4],
-                            352, 288, 352 * 288 * 2, G2D_NV16,
-                            &screen_info, 0, 620, 176, 144, 1, G2D_ROTATION_0,
-                            1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[4], 352, 288, 352 * 288 * 2,
+                            G2D_NV16, &screen_info, 0, 620, 176, 144, 1,
+                            G2D_ROTATION_0, 1);
 
-  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[5],
-                            352, 288, 352 * 288 * 2, G2D_YUYV,
-                            &screen_info, 420, 620, 176, 144, 1, G2D_ROTATION_0,
-                            1);
+  draw_image_to_framebuffer(g2dHandle, g2dDataBuf[5], 352, 288, 352 * 288 * 2,
+                            G2D_YUYV, &screen_info, 420, 620, 176, 144, 1,
+                            G2D_ROTATION_0, 1);
   gettimeofday(&tv2, NULL);
   printf(
       "Overlay rendering with blur effect time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
   if (wait && (0 == quitAndExit()))
-      goto err2;
+    goto err2;
 
   /* overlay test with multiblit */
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xffffffff);
 
   g2d_query_feature(g2dHandle, G2D_MULTI_SOURCE_BLT, &g2d_feature_available);
   if (g2d_feature_available == 1) {
-      gettimeofday(&tv1, NULL);
+    gettimeofday(&tv1, NULL);
 
-      Test_g2d_multi_blit(g2dHandle, g2dDataBuf, &screen_info);
+    Test_g2d_multi_blit(g2dHandle, g2dDataBuf, &screen_info);
 
-      gettimeofday(&tv2, NULL);
-      printf(
-          "Overlay rendering with multiblit time %dus .\n",
-          (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
-  }
-  else {
-      printf("g2d_feature 'G2D_MULTI_SOURCE_BLT' Not Supported for this "
-             "hardware!\n");
+    gettimeofday(&tv2, NULL);
+    printf(
+        "Overlay rendering with multiblit time %dus .\n",
+        (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
+  } else {
+    printf("g2d_feature 'G2D_MULTI_SOURCE_BLT' Not Supported for this "
+           "hardware!\n");
   }
 
   if (wait && (0 == quitAndExit()))
-      goto err2;
+    goto err2;
 
 err2:
   if (no_source_file) {
-      printf("prepare the jpg file, and create with below cmd\n"
-              "\tffmpeg -i 1024x768.jpg -pix_fmt rgb565le 1024x768-rgb565.rgb\n"
-              "\tffmpeg -i 800x600.jpg -pix_fmt bgr565le 800x600-bgr565.rgb\n"
-              "\tffmpeg -i 480x360.jpg -pix_fmt bgr565le 480x360-bgr565.rgb\n"
-              "\tffmpeg -i 352x288.jpg -pix_fmt yuyv422 352x288-yuyv.yuv \n"
-              "\tffmpeg -i 176x144.jpg -pix_fmt yuv420p 176x144-yuv420p.yuv\n"
-              "\tgst-launch-1.0 videotestsrc num-buffers=1 ! \\\n"
-              "\t\tvideo/x-raw,format=NV16,width=352,height=288 ! \\\n"
-              "\t\tfilesink location=352x288-nv16.yuv\n");
-      retval = -EINVAL;
+    printf("prepare the jpg file, and create with below cmd\n"
+           "\tffmpeg -i 1024x768.jpg -pix_fmt rgb565le 1024x768-rgb565.rgb\n"
+           "\tffmpeg -i 800x600.jpg -pix_fmt bgr565le 800x600-bgr565.rgb\n"
+           "\tffmpeg -i 480x360.jpg -pix_fmt bgr565le 480x360-bgr565.rgb\n"
+           "\tffmpeg -i 352x288.jpg -pix_fmt yuyv422 352x288-yuyv.yuv \n"
+           "\tffmpeg -i 176x144.jpg -pix_fmt yuv420p 176x144-yuv420p.yuv\n"
+           "\tgst-launch-1.0 videotestsrc num-buffers=1 ! \\\n"
+           "\t\tvideo/x-raw,format=NV16,width=352,height=288 ! \\\n"
+           "\t\tfilesink location=352x288-nv16.yuv\n");
+    retval = -EINVAL;
   }
 
   if (!g2dHandle)
-      g2d_close(g2dHandle);
+    g2d_close(g2dHandle);
 
-  for (int i = 0; i < sizeof(g2dDataBuf) / sizeof(g2dDataBuf[0]); i++)
-  {
-      if (g2dDataBuf[i])
-      {
-          releaseG2DTextureBuf(g2dDataBuf[i]);
-          g2dDataBuf[i] = NULL;
-      }
+  for (int i = 0; i < sizeof(g2dDataBuf) / sizeof(g2dDataBuf[0]); i++) {
+    if (g2dDataBuf[i]) {
+      releaseG2DTextureBuf(g2dDataBuf[i]);
+      g2dDataBuf[i] = NULL;
+    }
   }
 
   close(fd_fb0);
