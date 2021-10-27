@@ -98,10 +98,10 @@ static void usage() {
  * Returns 0 on success.
  */
 static int parseWidthHeight(const char *widthHeight, int *pWidth,
-                             int *pHeight) {
+                            int *pHeight) {
   char *end;
 
-  if (2 != sscanf(widthHeight, "%dx%d", pWidth, pHeight)){
+  if (2 != sscanf(widthHeight, "%dx%d", pWidth, pHeight)) {
     printf("widthxheight, both width and heigh are decimal\n");
     return -EINVAL;
   }
