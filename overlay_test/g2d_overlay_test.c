@@ -655,16 +655,21 @@ int main(int argc, char **argv) {
   /* overlay test with multiblit */
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xffffffff);
 
-  gettimeofday(&tv1, NULL);
   g2d_query_feature(g2dHandle, G2D_MULTI_SOURCE_BLT, &g2d_feature_available);
-  if (0 != g2d_feature_available == 0) {
-      Test_g2d_multi_blit(g2dHandle, g2dDataBuf, &screen_info);
-  }
-  gettimeofday(&tv2, NULL);
+  if (g2d_feature_available == 1) {
+      gettimeofday(&tv1, NULL);
 
-  printf(
-      "Overlay rendering with multiblit time %dus .\n",
-      (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
+      Test_g2d_multi_blit(g2dHandle, g2dDataBuf, &screen_info);
+
+      gettimeofday(&tv2, NULL);
+      printf(
+          "Overlay rendering with multiblit time %dus .\n",
+          (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
+  }
+  else {
+      printf("g2d_feature 'G2D_MULTI_SOURCE_BLT' Not Supported for this "
+             "hardware!\n");
+  }
 
   if (wait && (0 == quitAndExit()))
       goto err2;
