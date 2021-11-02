@@ -60,15 +60,6 @@ int main(void) {
   printf("Width %d, Height %d, Format %s, Bpp %d\n", test_width, test_height,
          test_format, test_bpp);
 
-  // stress test for g2d memory allocator
-  for (i = 0; i < 16; i++) {
-    s_buf = g2d_alloc(1024 * 1024 * ((i % 16) + 1), 1);
-    d_buf = g2d_alloc(1024 * 1024 * ((i % 16) + 1), 0);
-
-    g2d_free(s_buf);
-    g2d_free(d_buf);
-  }
-
   s_buf = g2d_alloc(test_width * test_height * 4, 0);
   d_buf = g2d_alloc(test_width * test_height * 4, 0);
 
