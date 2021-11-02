@@ -13,6 +13,8 @@
 #include "test_context.h"
 #include <g2dExt.h>
 
+#define CACHEABLE 0
+
 static void g2d_fill_buffer(test_context *tc) {
   struct g2d_surfaceEx srcEx, dstEx;
   struct g2d_surface *src = &srcEx.base;
@@ -25,10 +27,8 @@ static void g2d_fill_buffer(test_context *tc) {
     return;
   }
 
-#define CACHEABLE 0
-  buf = g2d_alloc(tc->src_sz,
-                  CACHEABLE); // alloc physical contiguous memory for source
-                              // image data with cacheable attribute
+  // alloc physical contiguous memory for source image data
+  buf = g2d_alloc(tc->src_sz, CACHEABLE);
   if (!buf) {
     printf("Fail to allocate physical memory for image buffer!\n");
     goto OnError;

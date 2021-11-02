@@ -32,6 +32,8 @@
 #define FALSE 0
 #define TEST_LOOP 16
 
+#define CACHEABLE 0
+
 #define Timespec_Double(t)                                                     \
   ((double)((t)->tv_sec) + (1.e-9 * (double)((t)->tv_nsec)))
 
@@ -438,15 +440,7 @@ void CloseG2D(void) {
 
 int CreateG2DBuffer(g2d_buf_t *g2d_buf_ptr, int size) {
 
-#if G2D_CACHEABLE
-  // alloc physical contiguous memory for source image data with cacheable
-  // attribute
-  g2d_buf_ptr->g2d_buf = g2d_alloc(size, 1);
-#else
-  // alloc physical contiguous memory for source image data
-  g2d_buf_ptr->g2d_buf = g2d_alloc(size, 0);
-#endif
-
+  g2d_buf_ptr->g2d_buf = g2d_alloc(size, CACHEABLE);
   if (!g2d_buf_ptr->g2d_buf) {
     printf("Fail to allocate physical memory !\n");
     return -ENOMEM;
@@ -454,6 +448,7 @@ int CreateG2DBuffer(g2d_buf_t *g2d_buf_ptr, int size) {
 
   g2d_buf_ptr->data =
       (unsigned char *)((unsigned long)g2d_buf_ptr->g2d_buf->buf_vaddr);
+
   return 0;
 }
 

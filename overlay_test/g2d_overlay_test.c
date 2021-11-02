@@ -77,20 +77,18 @@ struct g2d_buf *createG2DTextureBuf(char *filename) {
   size = ftell(stream);
 
   fseek(stream, 0L, SEEK_SET);
-#if CACHEABLE
-  buf = g2d_alloc(size, 1); // alloc physical contiguous memory for source
-#else
-  buf = g2d_alloc(size,
-                  0); // alloc physical contiguous memory for source image data
-#endif
 
-  len = fread((void *)buf->buf_vaddr, 1, size, stream);
-  if (len != size)
-    printf("fread %s error\n", filename);
+  // alloc physical contiguous memory for source image data
+  buf = g2d_alloc(size, CACHEABLE);
+  if (buf) {
+    len = fread((void *)buf->buf_vaddr, 1, size, stream);
+    if (len != size)
+      printf("fread %s error\n", filename);
 
 #if CACHEABLE
-  g2d_cache_op(buf, G2D_CACHE_FLUSH);
+    g2d_cache_op(buf, G2D_CACHE_FLUSH);
 #endif
+  }
 
   fclose(stream);
   return buf;

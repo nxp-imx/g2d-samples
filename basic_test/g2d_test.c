@@ -210,7 +210,6 @@ int main(int argc, char *argv[]) {
   }
 
   g2d_finish(handle);
-  printf("pass.\n");
 
   /****************************************** test g2d_blit
    * *********************************************************/
@@ -2072,11 +2071,11 @@ int main(int argc, char *argv[]) {
   printf("g2d copy with cache op time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
 
-  /****************************************** test g2d_blit with vg core
-   * *********************************************************/
-
   g2d_free(s_buf);
   g2d_free(d_buf);
+
+  /****************************************** test g2d_blit with vg core
+   * *********************************************************/
 
   // set current hardware type as vg core
   if (g2d_make_current(handle, G2D_HARDWARE_VG) == -1) {
