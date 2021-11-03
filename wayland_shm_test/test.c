@@ -1,7 +1,7 @@
-#include "test_context.h"
 #include <stdint.h>
 #include <stdio.h>
 
+#include "test_context.h"
 #include <g2dExt.h>
 
 static void ebu_color_bands(uint32_t *frame, unsigned int width,

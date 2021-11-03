@@ -9,9 +9,6 @@
  *	g2d_test.c
  */
 
-#include "g2d.h"
-#include "g2dExt.h"
-
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -20,6 +17,8 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
+
+#include <g2dExt.h>
 
 #define TEST_WIDTH 1920
 #define TEST_HEIGHT 1080

@@ -12,5 +12,7 @@ typedef struct {
 
 } test_context;
 
-extern int test_context_alloc(size_t width, size_t height);
+extern test_context *test_context_alloc(size_t width, size_t height);
 extern void paint_pixels(test_context *tc);
+extern void test_paint_pixels(test_context *tc,
+                              struct client_buffer *client_buffer);

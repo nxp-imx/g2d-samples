@@ -1,18 +1,16 @@
 #include <assert.h>
+#include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include <g2dExt.h>
-#include <limits.h>
-#include <math.h>
-
-#include "linux_dmabuf_wp.h"
-
 #include "Needle3Scaled.c"
+#include "linux_dmabuf_wp.h"
 #include "test_context.h"
+#include <g2dExt.h>
 
 struct client_buffer {
   struct wl_buffer *wlbuffer;
@@ -506,8 +504,8 @@ static void g2d_fill_buffer(test_context *tc,
       0xFF, 0x0, 0x0,  0x0, 0x0, 0xFF, 0x0, 0x0,
       0x0,  0x0, 0xFF, 0x0, 0x0, 0x0,  0x0, 0xFF,
   };
-  //  g2d_set_csc_matrix(g2dHandle, matrix);
-  g2d_enable(g2dHandle, G2D_ARB_WARP);
+  g2d_set_csc_matrix(g2dHandle, matrix);
+  //  g2d_enable(g2dHandle, G2D_ARB_WARP);
 
   ////SRC
   src->planes[0] = (int)ebu_buf->buf_paddr;
@@ -567,7 +565,8 @@ static void g2d_fill_buffer(test_context *tc,
   dst->blendfunc = G2D_ONE_MINUS_SRC_ALPHA;
   dstEx.tiling = G2D_LINEAR;
 
-  g2d_two_blit(g2dHandle, src, sec, dst);
+  g2d_blitEx(g2dHandle, &srcEx, &dstEx);
+  //  g2d_two_blit(g2dHandle, src, sec, dst);
   g2d_finish(g2dHandle);
 }
 ////////////////////////////////////////////////

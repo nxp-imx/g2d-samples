@@ -26,8 +26,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "g2d.h"
-#include "g2dExt.h"
+#include <g2dExt.h>
 
 #define TRUE 1
 #define FALSE 0

@@ -10,9 +10,8 @@
 #include <wayland-client.h>
 #include <wayland-server-protocol.h>
 
-#include <g2dExt.h>
-
 #include "test_context.h"
+#include <g2dExt.h>
 
 struct wl_display *g_display = NULL;
 struct wl_compositor *g_compositor = NULL;

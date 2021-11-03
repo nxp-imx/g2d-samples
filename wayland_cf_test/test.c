@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
@@ -8,8 +9,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <assert.h>
 
 #include "test_context.h"
 #include <g2dExt.h>

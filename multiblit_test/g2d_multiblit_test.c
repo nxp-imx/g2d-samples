@@ -6,13 +6,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "g2d.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 
+#include <g2dExt.h>
 /*----------------------------
  * g2d multi blit test
  *---------------------------*/

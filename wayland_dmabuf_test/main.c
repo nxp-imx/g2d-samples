@@ -6,13 +6,14 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "linux_dmabuf_wp.h"
-#include "test_context.h"
 #include <drm/drm_fourcc.h>
-#include <g2dExt.h>
 #include <wayland-client-protocol.h>
 #include <wayland-client.h>
 #include <wayland-server-protocol.h>
+
+#include "linux_dmabuf_wp.h"
+#include "test_context.h"
+#include <g2dExt.h>
 
 struct wl_display *g_display = NULL;
 struct wl_compositor *g_compositor = NULL;
