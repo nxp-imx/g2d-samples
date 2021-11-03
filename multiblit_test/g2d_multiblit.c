@@ -5,6 +5,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+/*
+ * g2d_multiblit.c
+ */
 
 #include <errno.h>
 #include <stdio.h>
@@ -13,9 +16,6 @@
 #include <sys/time.h>
 
 #include <g2dExt.h>
-/*----------------------------
- * g2d multi blit test
- *---------------------------*/
 
 #define TEST_WIDTH 1920
 #define TEST_HEIGHT 1080

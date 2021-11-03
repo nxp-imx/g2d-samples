@@ -1,12 +1,12 @@
 /*
- * Copyright 2020 - 2021 NXP
+ * Copyright 2021 NXP
  * Copyright 2013-2014 Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- *	g2d_test.c
+ * g2d_basic.c
  */
 
 #include <errno.h>

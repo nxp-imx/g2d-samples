@@ -5,10 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * @file ocl_csc.c
- *
- * @brief G2D opencl  test application
- *
+ * g2d_ocl.c
  */
 
 #include <assert.h>

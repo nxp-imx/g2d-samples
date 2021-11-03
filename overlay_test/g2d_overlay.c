@@ -1,15 +1,12 @@
 /*
  * Copyright 2021 NXP
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * @file g2d_overly_test.c
- *
- * @brief G2D overlay test application
- *
+ * g2d_overlay.c
  */
 
 #ifdef __cplusplus

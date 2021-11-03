@@ -1,3 +1,14 @@
+/*
+ * Copyright 2021 NXP
+ * Copyright 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * cf_test.c
+ */
+
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>

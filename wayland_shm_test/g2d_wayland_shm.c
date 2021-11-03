@@ -1,3 +1,14 @@
+/*
+ * Copyright 2021 NXP
+ * Copyright 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * g2d_wayland_shm.c
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

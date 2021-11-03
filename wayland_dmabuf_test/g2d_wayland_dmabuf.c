@@ -1,3 +1,13 @@
+/*
+ * Copyright 2021 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * g2d_wayland_dmabuf.c
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

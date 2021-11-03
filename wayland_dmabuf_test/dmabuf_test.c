@@ -1,3 +1,13 @@
+/*
+ * Copyright 2021 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * dmabuf_test.c
+ */
+
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
