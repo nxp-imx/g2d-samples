@@ -17,7 +17,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "Needle3Scaled.c"
 #include "linux_dmabuf_wp.h"
 #include "test_context.h"
 #include <g2dExt.h>
@@ -579,7 +578,37 @@ static void g2d_fill_buffer(test_context *tc,
   //  g2d_two_blit(g2dHandle, src, sec, dst);
   g2d_finish(g2dHandle);
 }
-////////////////////////////////////////////////
+
+int copy_texture_buffer(struct g2d_buf *buf, char *filename) {
+  FILE *stream = NULL;
+  int size = 0;
+  int len = 0;
+  int read = 0;
+
+  stream = fopen(filename, "rb");
+  if (!stream) {
+    fprintf(stderr, "Fail to open data file %s\n", filename);
+    return -1;
+  }
+
+  fseek(stream, 0, SEEK_END);
+  size = ftell(stream);
+
+  if (size > buf->buf_size) {
+    fprintf(stderr, "Data file size is bigger than allocated buffer\n");
+  }
+  len = fmin(size, buf->buf_size);
+
+  fseek(stream, 0L, SEEK_SET);
+
+  read = fread((void *)buf->buf_vaddr, 1, len, stream);
+  if (read != len)
+    fprintf(stderr, "fread %s error\n", filename);
+
+  fclose(stream);
+  return 0;
+}
+
 void test_setup(test_context *tc) {
   struct test_data *td =
       (struct test_data *)calloc(1, sizeof(struct test_data));
@@ -609,8 +638,13 @@ void test_setup(test_context *tc) {
   tc->user_data = (void *)td;
 
   struct g2d_buf *ebu_buf = td->src_layer;
+
   //    ebu_color_bands(ebu_buf->buf_vaddr, tc->width, tc->height);
-  memcpy(ebu_buf->buf_vaddr, gimp_image.pixel_data, 240 * 240 * 4);
+
+  if (copy_texture_buffer(ebu_buf, "PM5544_MK10_BGRA8888.raw") < 0) {
+    fprintf(stderr, "Failed to copy raw data to buffer\n");
+    return;
+  }
 
   //    td->coord_x = calloc(1, tc->width*tc->height*2);
   //    td->coord_y = calloc(1, tc->width*tc->height*2);
