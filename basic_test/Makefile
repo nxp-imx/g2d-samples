@@ -6,17 +6,17 @@
 #* SPDX - License - Identifier : BSD - 3 - Clause
 #*
 #
-# Linux build file for g2d test code
+# Linux build file for g2d basic test
 #
 #
-TARGET := g2d_test
+TARGET := g2d_basic_test
 PREFIX ?= /usr
 
 CC ?= $(CROSS_COMPILE)gcc
 LDFLAGS +=  -lg2d
 
 OBJECTS += \
-	g2d_test.o	
+	g2d_basic.o
 
 $(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)

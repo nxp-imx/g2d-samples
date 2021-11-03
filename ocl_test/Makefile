@@ -8,7 +8,7 @@
 #
 # Linux build file for g2d ocl test
 #
-TARGET := g2d_ocl_csc
+TARGET := g2d_ocl_test
 PREFIX ?= /usr
 
 CC ?= $(CROSS_COMPILE)gcc
@@ -16,7 +16,7 @@ LDFLAGS +=  -lg2d
 
 
 OBJECTS += \
-   g2d_ocl_csc.o
+   g2d_ocl.o
 
 
 

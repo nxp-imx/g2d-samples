@@ -19,8 +19,8 @@ CC ?= $(CROSS_COMPILE)gcc
 LDFLAGS += -lg2d
 
 OBJECTS += \
-	main.o \
-	test.o \
+	g2d_wayland_shm.o \
+	shm_test.o \
 	test_context.o
 
 $(TARGET) : $(OBJECTS)

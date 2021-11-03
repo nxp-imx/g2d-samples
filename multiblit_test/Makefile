@@ -15,7 +15,7 @@ CC ?= $(CROSS_COMPILE)gcc
 LDFLAGS +=  -lg2d
 
 OBJECTS += \
-	g2d_multiblit_test.o
+	g2d_multiblit.o
 
 $(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS)

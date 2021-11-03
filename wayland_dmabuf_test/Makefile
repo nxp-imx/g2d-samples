@@ -19,8 +19,8 @@ CC ?= $(CROSS_COMPILE)gcc
 LDFLAGS += -lg2d -lm
 
 OBJECTS += \
-	main.o \
-	test.o \
+	g2d_wayland_dmabuf.o \
+	dmabuf_test.o \
 	test_context.o \
 	linux_dmabuf_wp.o
 
