@@ -2,7 +2,7 @@
 
 set -e
 
-OUTDIR=${HOME}/NFS-TESTS/linux_qnx/
+OUTDIR=`pwd`
 
 # List known formats with: ffmpeg -pix_fmts
 
@@ -24,7 +24,7 @@ echo
 pix_fmt=$1
 out_file=$2
 set -x
-gst-launch-1.0 -v filesrc location=PM5544_MK10.png ! decodebin ! videorate ! autovideoconvert ! video/x-raw,format=$pix_fmt,framerate=1/1 ! filesink location=$out_file
+gst-launch-1.0 -v filesrc location=PM5544_MK10.png ! decodebin ! videorate ! videoconvert ! video/x-raw,format=$pix_fmt,framerate=1/1 ! filesink location=$out_file
 set +x
 }
 
