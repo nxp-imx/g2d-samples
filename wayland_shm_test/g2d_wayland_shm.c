@@ -51,7 +51,6 @@ static const struct wl_shell_surface_listener shell_surface_listener = {
     handle_ping, handle_configure, handle_popup_done};
 
 static void redraw(void *data, struct wl_callback *callback, uint32_t time) {
-  fprintf(stderr, "userdata %p done\n", data);
   if (!data)
     return;
   test_context *tc = (test_context *)data;
@@ -78,7 +77,7 @@ static struct wl_buffer *create_buffer(test_context *tc) {
 
   void *g2dHandle;
   if (g2d_open(&g2dHandle) == -1 || g2dHandle == NULL) {
-    fprintf(stderr, "Fail to open g2d device!\n");
+    fprintf(stderr, "g2d_open failed\n");
     return NULL;
   }
   struct g2d_buf *g2d_data = g2d_alloc(size, 0);
@@ -159,13 +158,12 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
 
 static void global_registry_remover(void *data, struct wl_registry *registry,
                                     uint32_t id) {
-  printf("Got a registry losing event for %d\n", id);
+  fprintf(stderr, "Got a registry losing event for %d\n", id);
 }
 
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
-///////////////////////////////////////
 static bool display_connect(struct wl_display **display) {
   *display = wl_display_connect(NULL);
   if (*display == NULL) {
@@ -248,7 +246,7 @@ int main(int argc, char **argv) {
   }
 
   wl_display_disconnect(g_display);
-  printf("disconnected from display\n");
+  fprintf(stderr, "Disconnected from display\n");
 
   exit(0);
 }
