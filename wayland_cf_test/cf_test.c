@@ -25,6 +25,7 @@
 #include <g2dExt.h>
 
 #define CACHEABLE 0
+#define FRAMES 30
 
 static void g2d_fill_buffer(test_context *tc) {
   struct g2d_surfaceEx srcEx, dstEx;
@@ -34,14 +35,14 @@ static void g2d_fill_buffer(test_context *tc) {
   void *g2dHandle;
 
   if (g2d_open(&g2dHandle) == -1 || g2dHandle == NULL) {
-    printf("Fail to open g2d device!\n");
+    fprintf(stderr, "Fail to open g2d device!\n");
     return;
   }
 
   // alloc physical contiguous memory for source image data
   buf = g2d_alloc(tc->src_sz, CACHEABLE);
   if (!buf) {
-    printf("Fail to allocate physical memory for image buffer!\n");
+    fprintf(stderr, "Fail to allocate physical memory for image buffer!\n");
     goto OnError;
   }
 
@@ -52,17 +53,18 @@ static void g2d_fill_buffer(test_context *tc) {
 #endif
 
   /*
-      NOTE: in this example, all the test image data meet with the alignment
-     requirement. Thus, in your code, you need to pay attention on that.
+   NOTE: in this example, all the test image data meet with the alignment
+   requirement. Thus, in your code, you need to pay attention on that.
 
-      Pixel buffer address alignment requirement,
-      RGB/BGR:  pixel data in planes [0] with 16bytes alignment,
-      NV12/NV16:  Y in planes [0], UV in planes [1], with 64bytes alignment,
-      I420:    Y in planes [0], U in planes [1], V in planes [2], with 64 bytes
-     alignment, YV12:  Y in planes [0], V in planes [1], U in planes [2], with
-     64 bytes alignment, NV21/NV61:  Y in planes [0], VU in planes [1], with
-     64bytes alignment, YUYV/YVYU/UYVY/VYUY:  in planes[0], buffer address is
-     with 16bytes alignment.
+   Pixel buffer address alignment requirement,
+   RGB/BGR: pixel data in planes [0] with 16bytes alignment,
+   NV12/NV16: Y in planes [0], UV in planes [1], with 64bytes alignment,
+   I420: Y in planes [0], U in planes [1], V in planes [2], with 64 bytes
+   alignment,
+   YV12: Y in planes [0], V in planes [1], U in planes [2], with 64 bytes
+   alignment,
+   NV21/NV61: Y in planes [0], VU in planes [1], with 64 bytes alignment,
+   YUYV/YVYU/UYVY/VYUY: in planes[0], buffer address is with 16 bytes alignment.
   */
 
   src->format = tc->src_color_format;
@@ -170,21 +172,28 @@ static bool read_file(const char *fname, void **out_buf, size_t *out_sz) {
     fprintf(stderr, "fstat(%s) failed: %s\n", fname, strerror(errno));
     return false;
   }
+
   uint8_t *buf = malloc(statbuf.st_size);
-  read(fd, buf, statbuf.st_size);
+  rv = read(fd, buf, statbuf.st_size);
+  if (!rv) {
+    fprintf(stderr, "can't read %s: %s\n", fname, strerror(errno));
+    close(fd);
+    return false;
+  }
+
   close(fd);
   *out_sz = statbuf.st_size;
   *out_buf = buf;
-  fprintf(stderr, "testing %s\n", fname);
+
   return true;
 }
 
 static void test_color_format(test_context *tc, const char *fname,
                               unsigned src_color_format) {
   bool rv = read_file(fname, &tc->src_buf, &tc->src_sz);
-  if (!rv) {
+  if (!rv)
     return;
-  }
+
   tc->src_width = 1024;
   tc->src_height = 768;
   tc->src_color_format = src_color_format;
@@ -200,5 +209,124 @@ static void test_color_format(test_context *tc, const char *fname,
 }
 
 void paint_pixels(test_context *tc) {
-  test_color_format(tc, "PM5544_MK10_RGBA8888.raw", G2D_RGBA8888);
+  static int count = -1;
+  count++;
+
+  if (count < FRAMES * 1) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "Testing %s.", "G2D_ABGR8888");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_ABGR8888.raw", G2D_ABGR8888);
+    return;
+  }
+  if (count < FRAMES * 2) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_ARGB8888");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_ARGB8888.raw", G2D_ARGB8888);
+    return;
+  }
+  if (count < FRAMES * 3) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_BGR565");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_BGR565.raw", G2D_BGR565);
+    return;
+  }
+  if (count < FRAMES * 4) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_BGRA8888");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_BGRA8888.raw", G2D_BGRA8888);
+    return;
+  }
+  if (count < FRAMES * 5) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_NV12");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_NV12.raw", G2D_NV12);
+    return;
+  }
+  if (count < FRAMES * 6) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_NV16");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_NV16.raw", G2D_NV16);
+    return;
+  }
+  if (count < FRAMES * 7) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_NV21");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_NV21.raw", G2D_NV21);
+    return;
+  }
+  if (count < FRAMES * 8) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_NV61");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_NV61.raw", G2D_NV61);
+    return;
+  }
+  if (count < FRAMES * 9) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_RGB565");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_RGB565.raw", G2D_RGB565);
+    return;
+  }
+  if (count < FRAMES * 10) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_RGBA8888");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_RGBA8888.raw", G2D_RGBA8888);
+    return;
+  }
+  if (count < FRAMES * 11) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_UYVY");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_UYVY422.raw", G2D_UYVY);
+    return;
+  }
+  if (count < FRAMES * 12) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_YUYV");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_YUYV422.raw", G2D_YUYV);
+    return;
+  }
+#if 0
+  if (count < FRAMES * 13) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_I420");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_I420.raw", G2D_I420);
+    return;
+  }
+  if (count < FRAMES * 14) {
+    if (!(count % FRAMES))
+      fprintf(stderr, "\nTesting %s.", "G2D_YV12");
+    else
+      fprintf(stderr, ".");
+    test_color_format(tc, "PM5544_MK10_YV12.raw", G2D_YV12);
+    return;
+  }
+#endif
+
+  fprintf(stderr, "\nTest complete!\n");
+  exit(0);
 }
