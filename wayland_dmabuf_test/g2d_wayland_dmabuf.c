@@ -66,28 +66,24 @@ struct client_buffer {
   unsigned long stride;
 };
 
-static struct wl_buffer *
-linux_dmabuf_construct_wl_buffer(test_context *tc, struct client_buffer *);
+static int linux_dmabuf_construct_wl_buffer(test_context *tc,
+                                            struct client_buffer *);
 
 static void *window_next_buffer(test_context *tc) {
   struct client_buffer *client_buffer;
   int ret = 0;
-  int bufid = 0;
+
   if (!tc->dmabuffers[0]->busy) {
     client_buffer = tc->dmabuffers[0];
-    bufid = 0;
   } else if (!tc->dmabuffers[1]->busy) {
     client_buffer = tc->dmabuffers[1];
-    bufid = 1;
   } else {
-    bufid = -1;
     fprintf(stderr, "window_next_buffer failed\n");
     return NULL;
   }
 
   if (!client_buffer->wlbuffer) {
     ret = linux_dmabuf_construct_wl_buffer(tc, client_buffer);
-
     if (ret < 0)
       return NULL;
   }
@@ -109,7 +105,7 @@ static void redraw(void *data, struct wl_callback *callback, uint32_t time) {
     wl_callback_destroy(g_frame_callback);
 
   wl_surface_damage(g_surface, 0, 0, tc->window_width, tc->window_height);
-  test_paint_pixels(tc, client_buffer);
+  paint_pixels(tc, client_buffer);
 
   g_frame_callback = wl_surface_frame(g_surface);
   wl_surface_attach(g_surface, client_buffer->wlbuffer, 0, 0);
@@ -162,7 +158,6 @@ static bool create_window(test_context *tc) {
   wl_surface_commit(g_surface);
   test_setup(tc);
 
-  fprintf(stderr, "create_window done\n");
   return true;
 }
 
@@ -242,7 +237,6 @@ static void registry_handle_global_remove(void *data,
 static const struct wl_registry_listener registry_listener = {
     registry_handle_global, registry_handle_global_remove};
 
-///////////////////////////////////////
 static bool display_connect(struct wl_display **display) {
   *display = wl_display_connect(NULL);
   if (*display == NULL) {
@@ -293,7 +287,7 @@ static bool set_frame_callback(struct wl_callback **frame_callback,
   wl_callback_add_listener(*frame_callback, &frame_listener, tc);
   return true;
 }
-////
+
 static void buffer_release(void *data, struct wl_buffer *client_buffer) {
   struct client_buffer *buf = data;
   buf->busy = 0;
@@ -305,17 +299,16 @@ static void dmabuf_create_succeeded(void *data,
   struct client_buffer *client_buffer = data;
   client_buffer->wlbuffer = new_buffer;
   wl_buffer_add_listener(client_buffer->wlbuffer, &buffer_listener, data);
-  fprintf(stderr, "dmabuf done\n");
 }
 static void dmabuf_create_failed(void *data,
                                  struct zwp_linux_buffer_params_v1 *params) {
-  fprintf(stderr, "dmabuf failed\n");
+  fprintf(stderr, "dmabuf creation failed\n");
 }
 
 static const struct zwp_linux_buffer_params_v1_listener params_listener = {
     dmabuf_create_succeeded, dmabuf_create_failed};
 
-static struct wl_buffer *
+static int
 linux_dmabuf_construct_wl_buffer(test_context *tc,
                                  struct client_buffer *client_buffer) {
   int rv = 0;
@@ -325,7 +318,7 @@ linux_dmabuf_construct_wl_buffer(test_context *tc,
   params = zwp_linux_dmabuf_v1_create_params(g_dmabuf);
   if (params == NULL) {
     fprintf(stderr, "zwp_linux_dmabuf_v1_create_params failed\n");
-    return NULL;
+    return -1;
   }
 
   if (client_buffer->g2d_data == NULL)
@@ -338,19 +331,22 @@ linux_dmabuf_construct_wl_buffer(test_context *tc,
                                  ,
                                  0 // client_buffer->stride //stride
                                  ,
-                                 0 >> 32, 0 & 0xffffffff);
+                                 0 // >> 32
+                                 ,
+                                 0 // & 0xffffffff
+  );
   rv = zwp_linux_buffer_params_v1_add_listener(params, &params_listener,
                                                client_buffer);
   if (rv == -1) {
     fprintf(stderr, "zwp_linux_buffer_params_v1_add_listener failed\n");
-    return NULL;
+    return rv;
   }
 
   zwp_linux_buffer_params_v1_create(params, tc->window_width, tc->window_height,
-                                    DRM_FORMAT_XRGB8888, 0 // flags
+                                    DRM_FORMAT_ARGB8888, 0 // flags
   );
   wl_display_roundtrip(g_display);
-  return (void *)0x01;
+  return 0;
 }
 
 int main(int argc, char **argv) {
@@ -368,7 +364,7 @@ int main(int argc, char **argv) {
   if (!surface_create(g_compositor, &g_surface))
     exit(1);
 
-  test_context *tc = test_context_alloc(1920, 768);
+  test_context *tc = test_context_alloc(1024, 768);
   tc->dmabuffers[0] = test_buffer_new();
   tc->dmabuffers[1] = test_buffer_new();
   if (!set_frame_callback(&g_frame_callback, tc))
@@ -389,7 +385,7 @@ int main(int argc, char **argv) {
   }
 
   wl_display_disconnect(g_display);
-  printf("disconnected from display\n");
+  fprintf(stderr, "Disconnected from display\n");
 
   exit(0);
 }
