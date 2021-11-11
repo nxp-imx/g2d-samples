@@ -16,6 +16,7 @@ source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-aarch64-p
   ```
 3. make
   ```
+DESTDIR=/opt/rootfs make clean
 DESTDIR=/opt/rootfs make install
   ```
 
@@ -23,6 +24,9 @@ DESTDIR=/opt/rootfs make install
   ```
 $./g2d_test
 $./g2d_multiblit_test
+$./g2d_wayland_cf_test
+$./g2d_wayland_dmabuf_test
+$./g2d_wayland_shm_test
   ```
 
 the jpg file can be found in the internet, the only thing you shall be carefull is the resolution is right.

@@ -1,3 +1,13 @@
+/*
+ * Copyright 2021 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * test_context.h
+ */
+
 #include <unistd.h>
 
 struct client_buffer;
