@@ -22,7 +22,7 @@ DESTDIR=/opt/rootfs make install
 
 4. run
   ```
-$./g2d_test
+$./g2d_basic_test
 $./g2d_multiblit_test
 $./g2d_wayland_cf_test
 $./g2d_wayland_dmabuf_test
@@ -52,7 +52,7 @@ $./g2d_overlay_test
 
   ```
 $export G2D_OCL_ENABLE=1
-$./g2d_ocl_csc -s 852x480 -d 852x480 -w 852x852 -i nv12.tiger.852x480.yuv  -f nv12-yu12
+$./g2d_ocl_test -s 852x480 -d 852x480 -w 852x852 -i nv12.tiger.852x480.yuv  -f nv12-yu12
   ```
 
 **Additional Notes:**

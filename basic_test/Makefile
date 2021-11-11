@@ -9,7 +9,7 @@
 # Linux build file for g2d basic test
 #
 #
-TARGET := g2d_test
+TARGET := g2d_basic_test
 PREFIX ?= /usr
 
 CC ?= $(CROSS_COMPILE)gcc
