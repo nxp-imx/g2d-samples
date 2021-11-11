@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 # Share library
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
-	g2d_overlay_test.c
+	g2d_overlay.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q -Wno-implicit-function-declaration
 

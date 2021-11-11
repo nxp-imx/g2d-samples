@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 # Share library
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
-	g2d_test.c
+	g2d_basic.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q
 
@@ -19,7 +19,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../include/ $(FSL_PROPRIETARY_PATH)/fsl-proprietary/include/
 
-LOCAL_MODULE := g2d_test
+LOCAL_MODULE := g2d_basic_test
 LOCAL_LD_FLAGS += -nostartfiles
 LOCAL_PRELINK_MODULE := false
 LOCAL_VENDOR_MODULE  := true

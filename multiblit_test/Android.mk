@@ -4,7 +4,7 @@ include $(LOCAL_PATH)/../../../../driver/Android.mk.def
 # Share library
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
-	g2d_multiblit_test.c
+	g2d_multiblit.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q
 
