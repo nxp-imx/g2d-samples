@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * g2d_ocl.c
+ * g2d_yuv.c
  */
 
 #include <assert.h>

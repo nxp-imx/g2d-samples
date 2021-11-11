@@ -11,7 +11,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-	g2d_ocl_csc.c
+	g2d_yuv.c
 
 LOCAL_SHARED_LIBRARIES := libutils libc liblog
 
@@ -25,7 +25,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../include/ \
 		    $(FSL_PROPRIETARY_PATH)/fsl-proprietary/include
 
 LOCAL_VENDOR_MODULE := true
-LOCAL_MODULE := g2d_ocl_csc
+LOCAL_MODULE := g2d_yuv_test
 
 LOCAL_LD_FLAGS += -nostartfiles
 LOCAL_PRELINK_MODULE := false

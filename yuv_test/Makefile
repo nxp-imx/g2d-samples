@@ -6,9 +6,9 @@
 #*
 #
 #
-# Linux build file for g2d ocl test
+# Linux build file for g2d yuv test
 #
-TARGET := g2d_ocl_test
+TARGET := g2d_yuv_test
 PREFIX ?= /usr
 
 CC ?= $(CROSS_COMPILE)gcc
@@ -16,7 +16,7 @@ LDFLAGS +=  -lg2d
 
 
 OBJECTS += \
-   g2d_ocl.o
+   g2d_yuv.o
 
 
 

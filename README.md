@@ -51,8 +51,7 @@ $./g2d_overlay_test
 -w   line stride of source and dest, bytes unit.
 
   ```
-$export G2D_OCL_ENABLE=1
-$./g2d_ocl_test -s 852x480 -d 852x480 -w 852x852 -i nv12.tiger.852x480.yuv  -f nv12-yu12
+$./g2d_yuv_test -s 1920x1080 -d 1920x1080 -w 3840x1920 -i PM5544_MK10_YUYV422.raw -f yuyv-yu12
   ```
 
 **Additional Notes:**
