@@ -159,7 +159,7 @@ void vpu_linear_to_tile_y_uv(void *src_y_addr, void *src_uv_addr,
 static void draw_image_to_framebuffer(
     void *handle, struct g2d_buf *buf, int img_width, int img_height,
     int img_size, int img_format, enum g2d_tiling tiling,
-    struct fb_var_screeninfo *screen_info, int left, int top, int dst_width,
+    screeninfo_t *screen_info, int left, int top, int dst_width,
     int dst_height, int set_alpha, int rotation, int set_blur) {
   int i;
   struct g2d_surfaceEx srcEx, dstEx;
@@ -271,7 +271,7 @@ static void draw_image_to_framebuffer(
   }
 }
 
-void clear_screen_with_g2d(void *handle, struct fb_var_screeninfo *screen_info,
+void clear_screen_with_g2d(void *handle, screeninfo_t *screen_info,
                            int color) {
   struct g2d_surface dst;
 

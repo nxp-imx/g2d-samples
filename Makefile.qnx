@@ -1,0 +1,26 @@
+#*
+#* Copyright 2021 NXP
+#* All rights reserved.
+#*
+#* SPDX - License - Identifier : BSD - 3 - Clause
+#*
+#
+# QNX build file for g2d test code
+#
+#
+SUBDIRS := basic_test multiblit_test overlay_test
+
+SUBCLEAN = $(addsuffix .clean,$(SUBDIRS))
+
+.PHONY: all $(SUBDIRS)
+
+all: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@ -f Makefile.qnx
+
+.PHONY: clean $(SUBCLEAN)
+clean: $(SUBCLEAN)
+
+$(SUBCLEAN): %.clean:
+	$(MAKE) clean -C $*

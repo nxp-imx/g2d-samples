@@ -219,6 +219,7 @@ int main(int argc, char *argv[]) {
     printf("RGBA to YUY2 time %dus, %dfps, %dMpixel/s ........\n", diff,
            1000000 / diff, test_width * test_height / diff);
 
+#if G2D_OPENCL
     src.format = G2D_YUYV;
     dst.format = G2D_NV12;
 
@@ -280,6 +281,7 @@ int main(int argc, char *argv[]) {
 
     printf("YUY2 to NV12 time %dus, %dfps, %dMpixel/s ........\n", diff,
            1000000 / diff, test_width * test_height / diff);
+#endif
   }
 
   src.format = G2D_RGBA8888;

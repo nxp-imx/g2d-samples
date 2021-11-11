@@ -95,7 +95,7 @@ void releaseG2DTextureBuf(struct g2d_buf *buf) { g2d_free(buf); }
 static void draw_image_to_framebuffer(void *handle, struct g2d_buf *buf,
                                       int img_width, int img_height,
                                       int img_size, int img_format,
-                                      struct fb_var_screeninfo *screen_info,
+                                      screeninfo_t *screen_info,
                                       int left, int top, int dst_width,
                                       int dst_height, int set_alpha,
                                       int rotation, int set_blur) {
@@ -207,7 +207,7 @@ static void draw_image_to_framebuffer(void *handle, struct g2d_buf *buf,
 static void draw_image_with_multiblit(void *handle,
                                       struct img_info *img_info_ptr[],
                                       const int layers,
-                                      struct fb_var_screeninfo *screen_info) {
+                                      screeninfo_t *screen_info) {
   int i, n;
   struct g2d_surface_pair *sp[layers];
   struct g2d_buf *buf;
@@ -293,7 +293,7 @@ static void draw_image_with_multiblit(void *handle,
 }
 
 void Test_g2d_multi_blit(void *handle, struct g2d_buf *buf[],
-                         struct fb_var_screeninfo *screen_info) {
+                         screeninfo_t *screen_info) {
   int i = 0;
   const int layers = 8;
   struct img_info *img_info_ptr[layers];
@@ -393,7 +393,7 @@ void Test_g2d_multi_blit(void *handle, struct g2d_buf *buf[],
   draw_image_with_multiblit(handle, img_info_ptr, layers, screen_info);
 }
 
-void clear_screen_with_g2d(void *handle, struct fb_var_screeninfo *screen_info,
+void clear_screen_with_g2d(void *handle, screeninfo_t *screen_info,
                            int color) {
   struct g2d_surface dst;
 

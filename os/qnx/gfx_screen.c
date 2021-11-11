@@ -21,6 +21,7 @@ extern "C" {
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "gfx_init.h"
 
@@ -143,7 +144,7 @@ int init_graphics(graphics_handler_t *handler, screeninfo_t *screen_info,
   (*screen_info).yres = dims[1];
 
   (*screen_info).bits_per_pixel = 32;
-  (*screen_info).red.offset = 0;
+  (*screen_info).red.offset = 16;
 
   *buffer_size = (*screen_info).xres * (*screen_info).yres *
                  (*screen_info).bits_per_pixel / 8;
