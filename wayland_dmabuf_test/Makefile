@@ -24,7 +24,9 @@ OBJECTS += \
 	test_context.o \
 	linux_dmabuf_wp.o
 
-$(TARGET) : linux_dmabuf_wp.h $(OBJECTS)
+$(OBJECTS) : linux_dmabuf_wp.h
+
+$(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(WAYLAND)
 
 .PHONY: install
