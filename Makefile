@@ -9,6 +9,10 @@
 #
 #
 SUBDIRS := $(wildcard *_test/.)
+ifneq ($(USE_WAYLAND),true)
+IGNORE := $(wildcard wayland*test/.)
+SUBDIRS := $(filter-out $(IGNORE), $(SUBDIRS))
+endif
 SUBINSTALL = $(addsuffix .install,$(SUBDIRS))
 SUBCLEAN = $(addsuffix .clean,$(SUBDIRS))
 
