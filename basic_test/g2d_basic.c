@@ -528,6 +528,52 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // SRC: alpha blending mode G2D_ONE, G2D_ZERO, with rectangle
+  // set test data in src buffer
+  // set test data in dst buffer
+  /* Expect the data in dst buffer to be changed only within the rectangle */
+  for (int tests = 0; tests < TEST_LOOP; tests++) {
+
+    memset(s_buf->buf_vaddr, 0x55, test_width * test_height * 4);
+    memset(d_buf->buf_vaddr, 0xAA, test_width * test_height * 4);
+
+    src.right = dst.right = rand() % test_width;
+    src.left = dst.left = rand() % dst.right;
+    src.bottom = dst.bottom = rand() % test_height;
+    src.top = dst.top = rand() % dst.bottom;
+
+    g2d_enable(handle, G2D_BLEND);
+    g2d_blit(handle, &src, &dst);
+    g2d_disable(handle, G2D_BLEND);
+
+    g2d_finish(handle);
+
+    // check if the generated color is correct
+    for (i = 0; i < test_height; i++) {
+      for (j = 0; j < test_width; j++) {
+        int color =
+            *(int *)(((char *)d_buf->buf_vaddr) + (i * test_width + j) * 4);
+        if ((j >= dst.left) && (j < dst.right) && (i >= dst.top) &&
+            (i < dst.bottom)) {
+          if (color != 0x55555555) {
+            printf("[%d, %d] Expected value 0x%x, Real value 0x%x\n", j, i,
+                   0x55555555, color);
+          }
+        } else {
+          if (color != 0xAAAAAAAA) {
+            printf("[%d, %d] Expected value 0x%x, Real value 0x%x\n", j, i,
+                   0xAAAAAAAA, color);
+          }
+        }
+      }
+    }
+  }
+
+  src.left = dst.left = 0;
+  src.top = dst.top = 0;
+  src.right = dst.right = test_width;
+  src.bottom = dst.bottom = test_height;
+
   // DST: alpha blending mode G2D_ZERO, G2D_ONE
   // set test data in src buffer
   for (i = 0; i < test_height; i++) {
@@ -1411,6 +1457,51 @@ int main(int argc, char *argv[]) {
 
   printf("g2d clear time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
+
+  /* Test randon rectangle clear */
+  // set garbage data in dst buffer
+  for (int tests = 0; tests < TEST_LOOP; tests++) {
+    memset(d_buf->buf_vaddr, 0xcd, test_width * test_height * 4);
+
+    dst.clrcolor = 0xffeeddcc;
+    dst.right = rand() % test_width;
+    dst.left = rand() % dst.right;
+    dst.bottom = rand() % test_height;
+    dst.top = rand() % dst.bottom;
+
+    dst.format = G2D_RGBA8888;
+
+    g2d_clear(handle, &dst);
+
+    g2d_finish(handle);
+
+    // check if the generated color is correct
+    for (i = 0; i < test_height; i++) {
+      for (j = 0; j < test_width; j++) {
+        int clrcolor =
+            *(int *)(((char *)d_buf->buf_vaddr) + (i * test_width + j) * 4);
+        if ((j >= dst.left) && (j < dst.right) && (i >= dst.top) &&
+            (i < dst.bottom)) {
+          if (clrcolor != dst.clrcolor) {
+            printf("[%d, %d] Expected value 0x%x, Real value color 0x%x\n", j,
+                   i, dst.clrcolor, clrcolor);
+          }
+        } else {
+          if (clrcolor != 0xcdcdcdcd) {
+            printf("[%d, %d] Expected value 0x%x, Real value color 0x%x\n", j,
+                   i, 0xcdcdcdcd, clrcolor);
+          }
+        }
+      }
+    }
+  }
+
+  dst.clrcolor = 0xffeeddcc;
+  dst.left = 0;
+  dst.top = 0;
+  dst.right = test_width;
+  dst.bottom = test_height;
+  dst.format = G2D_RGBA8888;
 
   /********** test g2d rotation********************/
   // set test data in src buffer
