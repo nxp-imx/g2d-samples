@@ -570,39 +570,31 @@ static void Test_vpu_tiled_to_linear(void *handle, struct g2d_buf *buf,
   printf("Test_colorbar_vpu_linear_to_linear ...\n");
   Test_colorbar_vpu_tiled_to_linear(handle, 1024, 768, G2D_LINEAR, screen_info);
 
-#if defined(__QNX__)
-  qnx_post_window(screen_info);
-#endif
-  usleep(6000000);
+  graphics_update(screen_info);
+
   clear_screen_with_g2d(handle, screen_info, 0xffffffff);
 
   printf("Test_colorbar_vpu_tiled_to_linear ...\n");
   Test_colorbar_vpu_tiled_to_linear(handle, 1024, 768, G2D_AMPHION_TILED,
                                     screen_info);
 
-#if defined(__QNX__)
-  qnx_post_window(screen_info);
-#endif
-  usleep(6000000);
+  graphics_update(screen_info);
+
   clear_screen_with_g2d(handle, screen_info, 0xffffffff);
 
   printf("Test_image_vpu_linear_to_linear ...\n");
   Test_image_vpu_tiled_to_linear(handle, buf, 1024, 768, G2D_LINEAR,
                                  screen_info);
 
-#if defined(__QNX__)
-  qnx_post_window(screen_info);
-#endif
-  usleep(6000000);
+  graphics_update(screen_info);
+
   clear_screen_with_g2d(handle, screen_info, 0xffffffff);
 
   printf("Test_image_vpu_tiled_to_linear ...\n");
   Test_image_vpu_tiled_to_linear(handle, buf, 1024, 768, G2D_AMPHION_TILED,
                                  screen_info);
-#if defined(__QNX__)
-  qnx_post_window(screen_info);
-#endif
-  usleep(6000000);
+
+  graphics_update(screen_info);
 }
 
 static void Test_image_gpu_tiled_to_linear_with_crop(
@@ -747,10 +739,7 @@ int main(int argc, char **argv) {
       "Overlay rendering time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
-#if defined(__QNX__)
-  qnx_post_window(&screen_info);
-#endif
-  usleep(6000000);
+  graphics_update(&screen_info);
 
   /* g2d_blit with blur effect */
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xff000000);
@@ -792,10 +781,7 @@ int main(int argc, char **argv) {
       "Overlay rendering with blur effect time %dus .\n",
       (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
 
-#if defined(__QNX__)
-  qnx_post_window(&screen_info);
-#endif
-  usleep(6000000);
+  graphics_update(&screen_info);
 
   /* overlay test with multiblit */
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xffffffff);
@@ -810,9 +796,9 @@ int main(int argc, char **argv) {
     printf(
         "Overlay rendering with multiblit time %dus .\n",
         (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + tv2.tv_usec - tv1.tv_usec));
-#if defined(__QNX__)
-    qnx_post_window(&screen_info);
-#endif
+
+    graphics_update(&screen_info);
+
   } else {
     printf("g2d_feature 'G2D_MULTI_SOURCE_BLT' Not Supported for this "
            "hardware!\n");
@@ -826,10 +812,7 @@ int main(int argc, char **argv) {
   /* Test gpu tiled to linear */
   Test_gpu_tiled_to_linear(g2dHandle, g2dDataBuf[0], &screen_info);
 
-#if defined(__QNX__)
-  qnx_post_window(&screen_info);
-  usleep(6000000);
-#endif
+  graphics_update(&screen_info);
 
 no_file:
   if (!src_file_available) {

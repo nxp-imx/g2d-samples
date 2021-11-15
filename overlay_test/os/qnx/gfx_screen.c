@@ -170,7 +170,7 @@ err0:
   return -1;
 }
 
-void qnx_post_window(screeninfo_t *screen_info) {
+void graphics_update(screeninfo_t *screen_info) {
   int rect[4] = {0, 0, 0, 0};
   rect[2] = screen_info->xres;
   rect[3] = screen_info->yres;
@@ -178,6 +178,8 @@ void qnx_post_window(screeninfo_t *screen_info) {
                          rect, SCREEN_WAIT_IDLE) < 0) {
     printf("Unable to post window\n");
   }
+
+  usleep(6000000);
 }
 
 void deinit_graphics(graphics_handler_t *handler) {

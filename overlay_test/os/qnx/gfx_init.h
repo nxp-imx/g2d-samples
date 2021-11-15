@@ -54,8 +54,8 @@ typedef struct screeninfo {
 
 int init_graphics(graphics_handler_t *handler, screeninfo_t *screen_info,
                   int *buffer_phys, int *buffer_size);
-void qnx_post_window(screeninfo_t *screen_info);
 void deinit_graphics(graphics_handler_t *handler);
+void graphics_update(screeninfo_t *screen_info);
 
 #ifdef __cplusplus
 }

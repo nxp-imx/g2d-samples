@@ -33,6 +33,8 @@ int init_graphics(graphics_handler_t *handler, screeninfo_t *screen_info,
                   int *fb0_phys, int *fb0_size);
 void deinit_graphics(graphics_handler_t *handler);
 
+inline void graphics_update(screeninfo_t *screen_info) {}
+
 #ifdef __cplusplus
 }
 #endif
