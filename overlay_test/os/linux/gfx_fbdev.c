@@ -7,7 +7,7 @@
  */
 
 /*
- * @file gfx_init.c
+ * @file gfx_fbdev.c
  *
  * @brief Graphics initialization source file
  *

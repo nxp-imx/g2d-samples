@@ -17,7 +17,7 @@ LDFLAGS +=  -lg2d
 
 OBJECTS += \
 	g2d_overlay.o \
-	os/linux/gfx_init.o
+	os/linux/gfx_fbdev.o
 
 $(TARGET) : $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)

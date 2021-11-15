@@ -4,7 +4,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	g2d_overlay.c \
-	os/linux/gfx_init.c
+	os/linux/gfx_fbdev.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q -Wno-implicit-function-declaration
 
