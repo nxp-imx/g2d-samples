@@ -3,7 +3,8 @@ LOCAL_PATH := $(call my-dir)
 # Share library
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
-	g2d_overlay.c
+	g2d_overlay.c \
+	os/linux/gfx_init.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q -Wno-implicit-function-declaration
 
@@ -17,7 +18,10 @@ endif
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../include/ $(FSL_PROPRIETARY_PATH)/fsl-proprietary/include/
+LOCAL_C_INCLUDES += \
+	$(LOCAL_PATH)/os/linux \
+	$(LOCAL_PATH)/../../include \
+	$(FSL_PROPRIETARY_PATH)/fsl-proprietary/include
 
 LOCAL_MODULE := g2d_overlay_test
 
