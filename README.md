@@ -14,6 +14,10 @@ demo for g2d usage.
   ```
 source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-aarch64-poky-linux
   ```
+   Setup build to include wayland tests
+  ```
+export USE_WAYLAND=true
+  ```
 3. make
   ```
 DESTDIR=/opt/rootfs make clean
