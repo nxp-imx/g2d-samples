@@ -12,12 +12,12 @@
 TARGET := g2d_overlay_test
 
 CC ?= $(CROSS_COMPILE)gcc
-CFLAGS += -I os/linux
+CFLAGS += -I ../os/linux
 LDFLAGS +=  -lg2d
 
 OBJECTS += \
 	g2d_overlay.o \
-	os/linux/gfx_fbdev.o
+	../os/linux/gfx_fbdev.o
 
 $(TARGET) : $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)

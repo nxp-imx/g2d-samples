@@ -4,7 +4,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	g2d_overlay.c \
-	os/linux/gfx_fbdev.c
+	../os/linux/gfx_fbdev.c
 
 LOCAL_CFLAGS += -DBUILD_FOR_ANDROID -DIMX6Q -Wno-implicit-function-declaration
 
@@ -19,7 +19,7 @@ endif
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 
 LOCAL_C_INCLUDES += \
-	$(LOCAL_PATH)/os/linux \
+	$(LOCAL_PATH)../os/linux \
 	$(LOCAL_PATH)/../../include \
 	$(FSL_PROPRIETARY_PATH)/fsl-proprietary/include
 
