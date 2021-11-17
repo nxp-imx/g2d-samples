@@ -20,6 +20,10 @@
 
 #include <g2dExt.h>
 
+#ifndef G2D_OPENCL
+#define G2D_OPENCL 1
+#endif
+
 #define TEST_WIDTH 1920
 #define TEST_HEIGHT 1080
 #define TEST_LOOP 16
