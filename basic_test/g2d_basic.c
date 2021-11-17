@@ -18,7 +18,7 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 
-#include <g2dExt.h>
+#include "g2d.h"
 
 #define TEST_WIDTH 1920
 #define TEST_HEIGHT 1080
@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
   void *v_buf1, *v_buf2;
   int srcFmt = G2D_RGBA8888;
   int dstFmt = G2D_RGBA8888;
-  struct g2d_surfaceEx srcEx, dstEx;
 
   if (g2d_open(&handle)) {
     printf("g2d_open fail.\n");
@@ -170,158 +169,6 @@ int main(int argc, char *argv[]) {
 
   src.format = srcFmt;
   dst.format = dstFmt;
-
-  printf("---------------- g2d blit super-tiling cropping ----------------\n");
-  src.planes[0] = s_buf->buf_paddr;
-  src.planes[1] = s_buf->buf_paddr + test_width * test_height;
-  src.planes[2] = s_buf->buf_paddr + test_width * test_height * 2;
-  src.left = 743;
-  src.top = 352;
-  src.right = src.left + 16;
-  src.bottom = src.top + 1;
-  src.stride = test_width;
-  src.width = test_width;
-  src.height = test_height;
-  src.rot = G2D_ROTATION_0;
-
-  dst.planes[0] = d_buf->buf_paddr;
-  dst.planes[1] = d_buf->buf_paddr + test_width * test_height;
-  dst.planes[2] = d_buf->buf_paddr + test_width * test_height * 2;
-  dst.left = 743;
-  dst.top = 352;
-  dst.right = dst.left + 16;
-  dst.bottom = dst.top + 1;
-  dst.stride = test_width;
-  dst.width = test_width;
-  dst.height = test_height;
-  dst.rot = G2D_ROTATION_0;
-
-  srcEx.base = src;
-  srcEx.tiling = G2D_SUPERTILED;
-  dstEx.base = dst;
-  dstEx.tiling = G2D_LINEAR;
-
-  for (i = 0; i < TEST_LOOP * 100; i++) {
-    g2d_blitEx(handle, &srcEx, &dstEx);
-    srcEx.base.left = (743 + i) % 64;
-    srcEx.base.top = (352 + i) % 64;
-    srcEx.base.right = srcEx.base.left + 16;
-    srcEx.base.bottom = srcEx.base.top + 1;
-  }
-
-  g2d_finish(handle);
-
-  /****************************************** test g2d_blit
-   * *********************************************************/
-  printf(
-      "---------------- g2d blit super-tiling performance ----------------\n");
-
-  src.left = 0;
-  src.top = 0;
-  src.right = test_width;
-  src.bottom = test_height;
-
-  dst.left = 0;
-  dst.top = 0;
-  dst.right = test_width;
-  dst.bottom = test_height;
-
-  srcEx.base = src;
-  dstEx.base = dst;
-
-  gettimeofday(&tv1, NULL);
-
-  for (i = 0; i < TEST_LOOP; i++) {
-    g2d_blitEx(handle, &srcEx, &dstEx);
-  }
-
-  g2d_finish(handle);
-
-  gettimeofday(&tv2, NULL);
-  diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
-
-  printf("g2d tiling blit time %dus, %dfps, %dMpixel/s ........\n", diff,
-         1000000 / diff, test_width * test_height / diff);
-
-#if G2D_OPENCL
-  srcEx.base.format = G2D_NV12;
-  dstEx.base.format = G2D_NV12;
-  srcEx.tiling = G2D_AMPHION_TILED;
-  srcEx.base.stride = (test_width + 511) & ~511;
-
-  for (i = 0; i < test_height; i++) {
-    for (j = 0; j < test_width; j++) {
-      char *p = (char *)(((char *)s_buf->buf_vaddr) + (i * test_width + j) * 4);
-      p[0] = p[1] = p[2] = p[3] = (i * test_width + j) % 255;
-
-      p = (char *)(((char *)d_buf->buf_vaddr) + (i * test_width + j) * 4);
-      p[0] = p[1] = p[2] = p[3] = ((i * test_width + j + 128) % 255);
-    }
-  }
-
-  g2d_blitEx(handle, &srcEx, &dstEx);
-
-  g2d_finish(handle);
-
-  for (i = 0; i < test_height; i++) {
-    for (j = 0; j < test_width; j++) {
-      char *d = (char *)(((char *)d_buf->buf_vaddr) + (i * test_width + j));
-      int vtile = i / 128;
-      int htile = j / 8;
-      int x_in_tile = j & 7;
-      int y_in_tile = i & 127;
-      int offset = (htile * 128 * 8) + vtile * srcEx.base.stride * 128 +
-                   y_in_tile * 8 + x_in_tile;
-      char *s = (char *)(((char *)s_buf->buf_vaddr) + offset);
-
-      if (s[0] != d[0]) {
-        printf("opencl amphion Y deting failed at (%d,%d) src (%d, offset %d), "
-               "dst(%d)!\n",
-               i, j, s[0], offset, d[0]);
-        break;
-      }
-    }
-  }
-
-  for (i = 0; i < test_height / 2; i++) {
-    for (j = 0; j < test_width; j++) {
-      char *d = (char *)(((char *)d_buf->buf_vaddr) + test_width * test_height +
-                         (i * test_width + j));
-      int vtile = i / 128;
-      int htile = j / 8;
-      int x_in_tile = j & 7;
-      int y_in_tile = i & 127;
-      int offset = (htile * 128 * 8) + vtile * srcEx.base.stride * 128 +
-                   y_in_tile * 8 + x_in_tile;
-      char *s = (char *)(((char *)s_buf->buf_vaddr) + test_width * test_height +
-                         offset);
-
-      if (s[0] != d[0]) {
-        printf("opencl amphion UV deting failed at (%d,%d) src (%d, offset "
-               "%d), dst(%d)!\n",
-               i, j, s[0], offset, d[0]);
-        break;
-      }
-    }
-  }
-
-  printf("---------------- amphion tile2linear performance ----------------\n");
-  gettimeofday(&tv1, NULL);
-
-  for (i = 0; i < TEST_LOOP; i++) {
-    g2d_blitEx(handle, &srcEx, &dstEx);
-  }
-
-  g2d_finish(handle);
-
-  gettimeofday(&tv2, NULL);
-  diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
-
-  printf("g2d amphion tile2linear %dus, %dfps, %dMpixel/s ........\n", diff,
-         1000000 / diff, test_width * test_height / diff);
-#endif
 
   src.planes[0] = s_buf->buf_paddr;
   src.planes[1] = s_buf->buf_paddr + test_width * test_height;
