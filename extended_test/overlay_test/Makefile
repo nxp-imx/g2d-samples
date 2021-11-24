@@ -15,14 +15,18 @@ CC ?= $(CROSS_COMPILE)gcc
 CFLAGS += -I ../../os/linux
 LDFLAGS +=  -lg2d
 
-OBJECTS += \
-	g2d_overlay_tile.o \
-	../../os/linux/gfx_fbdev.o
+DIRS = . \
+	../../os/linux
+SOURCES = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c))
+OBJECTS = $(notdir $(SOURCES:.c=.o))
+VPATH = $(DIRS)
+
+%.o : %.c
+	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
 $(TARGET) : $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-PREFIX ?= /usr
 .PHONY: install
 install: $(TARGET)
 	mkdir -p $(DESTDIR)/opt/g2d_samples/
@@ -35,3 +39,4 @@ uninstall:
 .PHONY: clean
 clean:
 	rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
+
