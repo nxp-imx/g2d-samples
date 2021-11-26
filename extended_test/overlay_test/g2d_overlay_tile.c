@@ -128,13 +128,12 @@ void fill_colorbar_y_uv(void *y_addr, void *uv_addr, int width, int height,
   }
 }
 
-void vpu_linear_to_tile_y_uv(void *src_y_addr, void *src_uv_addr,
-                             void *dst_y_addr, void *dst_uv_addr, int width,
+void vpu_linear_to_tile_y_uv(void *src_addr, void *dst_addr, int width,
                              int height) {
-  uint8_t *p_src_y = (uint8_t *)src_y_addr;
-  uint8_t *p_dst_y = (uint8_t *)dst_y_addr;
-  uint16_t *p_src_uv = (uint16_t *)src_uv_addr;
-  uint16_t *p_dst_uv = (uint16_t *)dst_uv_addr;
+  uint8_t *p_src_y = (uint8_t *)src_addr;
+  uint8_t *p_dst_y = (uint8_t *)dst_addr;
+  uint16_t *p_src_uv = (uint16_t *)(src_addr + width * height);
+  uint16_t *p_dst_uv = (uint16_t *)(dst_addr + width * height);
   uint32_t offset_y = 0;
   uint32_t offset_uv = 0;
   uint32_t x = 0, y = 0;
@@ -316,10 +315,8 @@ void Test_colorbar_vpu_tiled_to_linear(void *handle, int width, int height,
                      64);
 
   if (tiling == G2D_AMPHION_TILED)
-    vpu_linear_to_tile_y_uv(
-        yuv_linear_buf->buf_vaddr, yuv_linear_buf->buf_vaddr + width * height,
-        yuv_vpu_tiled_buf->buf_vaddr,
-        yuv_vpu_tiled_buf->buf_vaddr + width * height, width, height);
+    vpu_linear_to_tile_y_uv(yuv_linear_buf->buf_vaddr,
+                            yuv_vpu_tiled_buf->buf_vaddr, width, height);
   else if (tiling == G2D_LINEAR)
     memcpy(yuv_vpu_tiled_buf->buf_vaddr, yuv_linear_buf->buf_vaddr,
            width * height * 3 / 2);
