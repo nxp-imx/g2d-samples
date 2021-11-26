@@ -370,7 +370,8 @@ static void Test_image_vpu_tiled_to_linear(void *handle, struct g2d_buf *buf,
                             0, G2D_ROTATION_0, 0);
 }
 
-static void Test_vpu_tiled_to_linear(void *handle, struct g2d_buf *buf,
+static void Test_vpu_tiled_to_linear(void *handle, struct g2d_buf *linear_buf,
+                                     struct g2d_buf *tiled_buf,
                                      screeninfo_t *screen_info) {
   printf("\nTest_vpu_tiled_to_linear\n");
 
@@ -390,7 +391,7 @@ static void Test_vpu_tiled_to_linear(void *handle, struct g2d_buf *buf,
   clear_screen_with_g2d(handle, screen_info, 0xffffffff);
 
   printf("Test_image_vpu_linear_to_linear ...\n");
-  Test_image_vpu_tiled_to_linear(handle, buf, 1024, 768, G2D_LINEAR,
+  Test_image_vpu_tiled_to_linear(handle, linear_buf, 1024, 768, G2D_LINEAR,
                                  screen_info);
 
   graphics_update(screen_info);
@@ -398,8 +399,10 @@ static void Test_vpu_tiled_to_linear(void *handle, struct g2d_buf *buf,
   clear_screen_with_g2d(handle, screen_info, 0xffffffff);
 
   printf("Test_image_vpu_tiled_to_linear ...\n");
-  Test_image_vpu_tiled_to_linear(handle, buf, 1024, 768, G2D_AMPHION_TILED,
-                                 screen_info);
+  vpu_linear_to_tile_y_uv(linear_buf->buf_vaddr, tiled_buf->buf_vaddr, 1024,
+                          768);
+  Test_image_vpu_tiled_to_linear(handle, tiled_buf, 1024, 768,
+                                 G2D_AMPHION_TILED, screen_info);
 
   graphics_update(screen_info);
 }
@@ -480,14 +483,19 @@ int main(int argc, char **argv) {
   if (!g2dDataBuf[0])
     goto no_file;
 
-  g2dDataBuf[6] = createG2DTextureBuf("PM5544_MK10_NV12.raw");
-  if (!g2dDataBuf[6])
+  g2dDataBuf[1] = createG2DTextureBuf("PM5544_MK10_NV12.raw");
+  if (!g2dDataBuf[1])
+    goto no_file;
+
+  g2dDataBuf[2] = createG2DTextureBuf("PM5544_MK10_NV12.raw");
+  if (!g2dDataBuf[2])
     goto no_file;
 
   src_file_available = 1;
 
   /* Test vpu tiled to linear */
-  Test_vpu_tiled_to_linear(g2dHandle, g2dDataBuf[6], &screen_info);
+  Test_vpu_tiled_to_linear(g2dHandle, g2dDataBuf[1], g2dDataBuf[2],
+                           &screen_info);
 
   clear_screen_with_g2d(g2dHandle, &screen_info, 0xff000000);
 
