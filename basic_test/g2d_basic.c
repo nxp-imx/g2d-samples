@@ -86,6 +86,15 @@ int main(int argc, char *argv[]) {
   int srcFmt = G2D_RGBA8888;
   int dstFmt = G2D_RGBA8888;
 
+  printf("---------------- g2d_open/close stress test ----------\n");
+  for (i = 0; i < 2048; i++) {
+    if (g2d_open(&handle)) {
+      printf("g2d_open/close stress test fail.\n");
+      return -ENOTTY;
+    }
+    g2d_close(handle);
+  }
+
   if (g2d_open(&handle)) {
     printf("g2d_open fail.\n");
     return -ENOTTY;
