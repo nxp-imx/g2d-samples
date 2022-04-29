@@ -263,12 +263,12 @@ int main(int argc, char **argv) {
   if (0 == dstStride)
     dstStride = dstWidth;
 
-  struct g2d_buf *srcYBuf;
-  struct g2d_buf *srcUBuf;
-  struct g2d_buf *srcVBuf;
-  struct g2d_buf *dstYBuf;
-  struct g2d_buf *dstUBuf;
-  struct g2d_buf *dstVBuf;
+  struct g2d_buf *srcYBuf = NULL;
+  struct g2d_buf *srcUBuf = NULL;
+  struct g2d_buf *srcVBuf = NULL;
+  struct g2d_buf *dstYBuf = NULL;
+  struct g2d_buf *dstUBuf = NULL;
+  struct g2d_buf *dstVBuf = NULL;
 
   ret = OpenG2D();
   if (0 != ret) {
