@@ -22,7 +22,6 @@
 
 #define TEST_WIDTH 1920
 #define TEST_HEIGHT 1080
-#define TEST_LOOP 16
 #define SIZE_1K 1024
 #define SIZE_1M (1024 * 1024)
 
@@ -72,6 +71,7 @@ static const struct option longOptions[] = {
     {"verbose", no_argument, NULL, 'v'},
     {"source", required_argument, NULL, 's'},
     {"format", required_argument, NULL, 'f'},
+    {"times", required_argument, NULL, 't'},
     {NULL, 0, NULL, 0}};
 
 int main(int argc, char *argv[]) {
@@ -85,6 +85,7 @@ int main(int argc, char *argv[]) {
   void *v_buf1, *v_buf2;
   int srcFmt = G2D_RGBA8888;
   int dstFmt = G2D_RGBA8888;
+  int test_loop = 16;
 
   printf("---------------- g2d_open/close stress test ----------\n");
   for (i = 0; i < 2048; i++) {
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
 
   while (1) {
     int optionIndex;
-    int ic = getopt_long(argc, argv, "hvs:f:1", longOptions, &optionIndex);
+    int ic = getopt_long(argc, argv, "hvs:f:t:1", longOptions, &optionIndex);
     if (ic == -1) {
       break;
     }
@@ -110,7 +111,7 @@ int main(int argc, char *argv[]) {
     switch (ic) {
     case 'v':
     case 'h':
-      fprintf(stdout, "usage: %s -s widthxheight -f sourceformat-destformat",
+      fprintf(stdout, "usage: %s -s widthxheight -f sourceformat-destformat -t loop_times",
               argv[0]);
       return 0;
       break;
@@ -136,6 +137,13 @@ int main(int argc, char *argv[]) {
                 "    rgb565:G2D_RGB565 \n",
                 optarg);
         return -EINVAL;
+      }
+      break;
+
+    case 't':
+      if ((1 != sscanf(optarg, "%d", &test_loop)) || (test_loop < 1)) {
+        fprintf(stdout, "Warning: Invalid loop times value '%s'\nSet to default value 16\n", optarg);
+        test_loop = 16;
       }
       break;
 
@@ -215,7 +223,7 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&tv1, NULL);
 
-    for (i = 0; i < TEST_LOOP; i++) {
+    for (i = 0; i < test_loop; i++) {
       g2d_blit(handle, &src, &dst);
     }
 
@@ -223,7 +231,7 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&tv2, NULL);
     diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-           TEST_LOOP;
+           test_loop;
 
     printf("RGBA to YUY2 time %dus, %dfps, %dMpixel/s ........\n", diff,
            1000000 / diff, test_width * test_height / diff);
@@ -278,7 +286,7 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&tv1, NULL);
 
-    for (i = 0; i < TEST_LOOP; i++) {
+    for (i = 0; i < test_loop; i++) {
       g2d_blit(handle, &src, &dst);
     }
 
@@ -286,7 +294,7 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&tv2, NULL);
     diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-           TEST_LOOP;
+           test_loop;
 
     printf("YUY2 to NV12 time %dus, %dfps, %dMpixel/s ........\n", diff,
            1000000 / diff, test_width * test_height / diff);
@@ -299,7 +307,7 @@ int main(int argc, char *argv[]) {
   printf("---------------- g2d blit performance ----------------\n");
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -307,7 +315,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
   printf("RGBA->RGBA time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
 
@@ -390,7 +398,7 @@ int main(int argc, char *argv[]) {
   // set test data in src buffer
   // set test data in dst buffer
   /* Expect the data in dst buffer to be changed only within the rectangle */
-  for (int tests = 0; tests < TEST_LOOP; tests++) {
+  for (int tests = 0; tests < test_loop; tests++) {
 
     memset(s_buf->buf_vaddr, 0x55, test_width * test_height * 4);
     memset(d_buf->buf_vaddr, 0xAA, test_width * test_height * 4);
@@ -1163,7 +1171,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_enable(handle, G2D_BLEND);
     g2d_enable(handle, G2D_GLOBAL_ALPHA);
 
@@ -1177,7 +1185,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d blending time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1261,7 +1269,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_enable(handle, G2D_BLEND_DIM);
     g2d_enable(handle, G2D_GLOBAL_ALPHA);
 
@@ -1275,7 +1283,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d blend-dim time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1303,7 +1311,7 @@ int main(int argc, char *argv[]) {
   printf("---------------- g2d clear performance ----------------\n");
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_clear(handle, &dst);
   }
 
@@ -1311,14 +1319,14 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d clear time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
 
   /* Test randon rectangle clear */
   // set garbage data in dst buffer
-  for (int tests = 0; tests < TEST_LOOP; tests++) {
+  for (int tests = 0; tests < test_loop; tests++) {
     memset(d_buf->buf_vaddr, 0xcd, test_width * test_height * 4);
 
     dst.clrcolor = 0xffeeddcc;
@@ -1415,7 +1423,7 @@ int main(int argc, char *argv[]) {
   printf("---------------- g2d rotation performance ----------------\n");
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1423,7 +1431,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("90 rotation time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1471,7 +1479,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1479,7 +1487,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("180 rotation time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1526,7 +1534,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1534,7 +1542,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("270 rotation time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1580,7 +1588,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1588,7 +1596,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d flip-h time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1632,7 +1640,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1640,7 +1648,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d flip-v time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1678,7 +1686,7 @@ int main(int argc, char *argv[]) {
   printf("---------------- g2d YUV rotation performance ----------------\n");
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1686,7 +1694,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("YUYV 90 rotation time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1694,7 +1702,7 @@ int main(int argc, char *argv[]) {
   dst.rot = G2D_ROTATION_270;
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1702,7 +1710,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("YUYV 270 rotation time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1736,7 +1744,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1744,7 +1752,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("resize format from rgba8888 to rgba8888, time %dus, %dfps, "
          "%dMpixel/s ........\n",
@@ -1754,7 +1762,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1762,7 +1770,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("resize format from nv12 to rgba8888, time %dus, %dfps, %dMpixel/s "
          "........\n",
@@ -1793,7 +1801,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1801,7 +1809,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("resize format from rgba8888 to rgba8888, time %dus, %dfps, "
          "%dMpixel/s ........\n",
@@ -1811,7 +1819,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1819,7 +1827,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("resize format from nv12 to rgba8888, time %dus, %dfps, %dMpixel/s "
          "........\n",
@@ -1847,7 +1855,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -1855,7 +1863,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("crop from (%d,%d,%d,%d) to %dx%d, time %dus, %dfps, %dMpixel/s "
          "........\n",
@@ -1882,7 +1890,7 @@ int main(int argc, char *argv[]) {
   printf("---------------- g2d copy & cache performance ----------------\n");
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_copy(handle, d_buf, s_buf, test_width * test_height * 4);
   }
 
@@ -1890,20 +1898,20 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d copy non-cacheable time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     memcpy(d_buf->buf_vaddr, s_buf->buf_vaddr, test_width * test_height * 4);
   }
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("cpu copy non-cacheable time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -1916,13 +1924,13 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     memcpy(v_buf2, v_buf1, test_width * test_height * 4);
   }
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("cpu copy user cacheable time %dus, %dfps, %dMpixel/s ........\n",
          diff, 1000000 / diff, test_width * test_height / diff);
@@ -1931,13 +1939,13 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     memcpy(d_buf->buf_vaddr, v_buf1, test_width * test_height * 4);
   }
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("cpu copy user cacheable to non-cacheable time %dus, %dfps, "
          "%dMpixel/s ........\n",
@@ -1947,13 +1955,13 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     memcpy(v_buf2, s_buf->buf_vaddr, test_width * test_height * 4);
   }
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("cpu copy user non-cacheable to cacheable time %dus, %dfps, "
          "%dMpixel/s ........\n",
@@ -1971,13 +1979,13 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     memcpy(d_buf->buf_vaddr, s_buf->buf_vaddr, test_width * test_height * 4);
   }
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("cpu copy gpu cacheable time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -2004,7 +2012,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_cache_op(s_buf, G2D_CACHE_CLEAN);
     g2d_cache_op(d_buf, G2D_CACHE_INVALIDATE);
 
@@ -2015,7 +2023,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d copy with cache op time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -2080,7 +2088,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_clear(handle, &dst);
   }
 
@@ -2088,14 +2096,14 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d clear with vg time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -2103,7 +2111,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d blit with vg time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -2125,7 +2133,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_copy(handle, d_buf, s_buf, test_width * test_height * 4);
   }
 
@@ -2133,7 +2141,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d copy with vg time %dus, %dfps, %dMpixel/s ........\n", diff,
          1000000 / diff, test_width * test_height / diff);
@@ -2425,7 +2433,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -2433,7 +2441,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("resize format from rgba8888 to rgba8888 with vg, time %dus, %dfps, "
          "%dMpixel/s ........\n",
@@ -2443,7 +2451,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv1, NULL);
 
-  for (i = 0; i < TEST_LOOP; i++) {
+  for (i = 0; i < test_loop; i++) {
     g2d_blit(handle, &src, &dst);
   }
 
@@ -2451,7 +2459,7 @@ int main(int argc, char *argv[]) {
 
   gettimeofday(&tv2, NULL);
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
-         TEST_LOOP;
+         test_loop;
 
   printf("g2d resize format from rgba8888 to rgba8888 with 2d, time %dus, "
          "%dfps, %dMpixel/s ........\n",
