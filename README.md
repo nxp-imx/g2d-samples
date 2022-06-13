@@ -14,9 +14,12 @@ demo for g2d usage.
   ```
 source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-aarch64-poky-linux
   ```
-   Setup build to include wayland tests
+   Configure build for G2D implementation
   ```
-export USE_WAYLAND=true
+export BUILD_IMPLEMENTATION=dpu
+export BUILD_IMPLEMENTATION=gpu-drm
+export BUILD_IMPLEMENTATION=gpu-fbdev
+export BUILD_IMPLEMENTATION=pxp
   ```
 3. Build
   ```
@@ -24,7 +27,7 @@ DESTDIR=/opt/rootfs make clean
 DESTDIR=/opt/rootfs make install
   ```
 
-4. Run, test availability depends on USE_WAYLAND
+4. Run, test availability depends on BUILD_IMPLEMENTATION
   ```
 $./g2d_basic_test
 $./g2d_multiblit_test
