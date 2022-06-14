@@ -18,13 +18,13 @@ source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-aarch64-p
   ```
 export USE_WAYLAND=true
   ```
-3. make
+3. Build
   ```
 DESTDIR=/opt/rootfs make clean
 DESTDIR=/opt/rootfs make install
   ```
 
-4. run
+4. Run, test availability depends on USE_WAYLAND
   ```
 $./g2d_basic_test
 $./g2d_multiblit_test
@@ -33,8 +33,8 @@ $./g2d_wayland_dmabuf_test
 $./g2d_wayland_shm_test
   ```
 
-the jpg file can be found in the internet, the only thing you shall be carefull is the resolution is right.
-prepare the 1024x768-rgb565.rgb, 800x600-bgr565.rgb, 480x360-bgr565.rgb, 352x288-yuyv.yuv, 352x288-nv16.yuv, 176x144-yuv420p.yuv with below cmd.
+The jpg file can be found on the Internet, just make sure the resolution is correct.
+Prepare the 1024x768-rgb565.rgb, 800x600-bgr565.rgb, 480x360-bgr565.rgb, 352x288-yuyv.yuv, 352x288-nv16.yuv, 176x144-yuv420p.yuv with below cmd.
 
   ```
 $ffmpeg -i 1024x768.jpg -pix_fmt rgb565le 1024x768-rgb565.rgb
@@ -65,19 +65,19 @@ $./g2d_yuv_test -s 1920x1080 -d 1920x1080 -w 3840x1920 -i PM5544_MK10_YUYV422.ra
 source /qnx700/qnxsdp-env.sh
   ```
 
-2. make
+2. Build
   ```
 make -f Makefile.qnx
   ```
 
-3. run
+3. Run
   ```
 $./g2d_basic_test
 $./g2d_multiblit_test
 $./g2d_overlay_test
+  ```
 
 See instruction for linux how to build source files with image data.
-
 
 **Additional Notes:**
   - There is no source distribution available for Android BSPs.  The driver requires specific integration into the Android OS and is not available as a separate source package.
