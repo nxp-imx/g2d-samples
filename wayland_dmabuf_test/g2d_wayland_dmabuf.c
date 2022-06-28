@@ -147,6 +147,8 @@ static bool create_g2d_buffer(test_context *tc, struct client_buffer *buf) {
     return false;
   }
 
+  buf->stride = stride;
+
   return true;
 }
 
@@ -329,7 +331,7 @@ linux_dmabuf_construct_wl_buffer(test_context *tc,
                                  ,
                                  0 // offset
                                  ,
-                                 0 // client_buffer->stride //stride
+                                 client_buffer->stride // client_buffer->stride //stride
                                  ,
                                  0 // >> 32
                                  ,
