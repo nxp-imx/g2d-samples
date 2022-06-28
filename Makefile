@@ -21,7 +21,7 @@ endif
 
 SUBDIRS_dpu = basic_test tiling_test warp_dewarp_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
 SUBDIRS_gpu-drm = basic_test multiblit_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
-SUBDIRS_gpu-fbdev = basic_test overlay_test
+SUBDIRS_gpu-fbdev = basic_test overlay_test multiblit_test
 SUBDIRS_pxp = basic_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
 SUBDIRS = $(SUBDIRS_$(BUILD_IMPLEMENTATION))
 ifeq ($(SUBDIRS),)
