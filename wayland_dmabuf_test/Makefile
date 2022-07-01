@@ -17,12 +17,14 @@ PREFIX ?= /usr
 CC ?= $(CROSS_COMPILE)gcc
 
 LDFLAGS += -lg2d -lm
+CFLAGS += -I ../os/linux/wayland
 
 OBJECTS += \
 	g2d_wayland_dmabuf.o \
 	dmabuf_test.o \
 	test_context.o \
-	linux_dmabuf_wp.o
+	linux_dmabuf_wp.o \
+	../os/linux/wayland/xdg-shell-protocol.o
 
 $(OBJECTS) : linux_dmabuf_wp.h
 
