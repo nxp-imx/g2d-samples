@@ -23,50 +23,58 @@
 
 #include "test_context.h"
 #include <g2dExt.h>
+#include "xdg-shell-client-protocol.h"
 
 struct wl_display *g_display = NULL;
 struct wl_compositor *g_compositor = NULL;
 struct wl_surface *g_surface;
-struct wl_shell *g_shell;
-struct wl_shell_surface *g_shell_surface;
+struct xdg_wm_base *g_wm_base = NULL;
+struct xdg_surface *g_xdg_surface = NULL;
+struct xdg_toplevel *g_xdg_toplevel = NULL;
 struct wl_shm *g_shm;
 struct wl_buffer *g_buffer;
 struct wl_callback *g_frame_callback;
+bool wait_for_configure;
 
 static const struct wl_callback_listener frame_listener;
 
-static void handle_ping(void *data, struct wl_shell_surface *shell_surface,
-                        uint32_t serial) {
-  wl_shell_surface_pong(shell_surface, serial);
-  fprintf(stderr, "Pinged and ponged\n");
+static void
+redraw(void *data, struct wl_callback *callback, uint32_t time);
+
+static void
+handle_xdg_surface_configure(void *data, struct xdg_surface *surface,
+                             uint32_t serial)
+{
+  test_context *tc = data;
+
+  xdg_surface_ack_configure(surface, serial);
+
+  if(wait_for_configure) {
+    redraw(tc, NULL, 0);
+    wait_for_configure = false;
+  }
 }
 
-static void handle_configure(void *data, struct wl_shell_surface *shell_surface,
-                             uint32_t edges, int32_t width, int32_t height) {}
+static const struct xdg_surface_listener xdg_surface_listener = {
+  handle_xdg_surface_configure,
+};
 
-static void handle_popup_done(void *data,
-                              struct wl_shell_surface *shell_surface) {}
-
-static const struct wl_shell_surface_listener shell_surface_listener = {
-    handle_ping, handle_configure, handle_popup_done};
-
-static void redraw(void *data, struct wl_callback *callback, uint32_t time) {
-  if (!data)
-    return;
-  test_context *tc = (test_context *)data;
-
-  wl_callback_destroy(g_frame_callback);
-  wl_surface_damage(g_surface, 0, 0, tc->width, tc->height);
-
-  paint_pixels(tc);
-
-  g_frame_callback = wl_surface_frame(g_surface);
-  wl_surface_attach(g_surface, g_buffer, 0, 0);
-  wl_callback_add_listener(g_frame_callback, &frame_listener, tc);
-  wl_surface_commit(g_surface);
+static void
+handle_xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel,
+                              int32_t width, int32_t height,
+                              struct wl_array *state)
+{
 }
 
-static const struct wl_callback_listener frame_listener = {redraw};
+static void
+handle_xdg_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel)
+{
+}
+
+static const struct xdg_toplevel_listener xdg_toplevel_listener = {
+  handle_xdg_toplevel_configure,
+  handle_xdg_toplevel_close,
+};
 
 static struct wl_buffer *create_buffer(test_context *tc) {
   struct wl_shm_pool *pool;
@@ -107,8 +115,25 @@ static void create_window(test_context *tc) {
 
   wl_surface_attach(g_surface, g_buffer, 0, 0);
   // wl_surface_damage(g_surface, 0, 0, g_width, g_height);
+}
+
+static void redraw(void *data, struct wl_callback *callback, uint32_t time) {
+  if (!data)
+    return;
+  test_context *tc = (test_context *)data;
+
+  wl_callback_destroy(g_frame_callback);
+  wl_surface_damage(g_surface, 0, 0, tc->width, tc->height);
+
+  paint_pixels(tc);
+
+  g_frame_callback = wl_surface_frame(g_surface);
+  wl_surface_attach(g_surface, g_buffer, 0, 0);
+  wl_callback_add_listener(g_frame_callback, &frame_listener, tc);
   wl_surface_commit(g_surface);
 }
+
+static const struct wl_callback_listener frame_listener = {redraw};
 
 static void shm_format(void *data, struct wl_shm *wl_shm, uint32_t format) {
   char *s;
@@ -143,13 +168,25 @@ static void shm_format(void *data, struct wl_shm *wl_shm, uint32_t format) {
 
 struct wl_shm_listener shm_listener = {shm_format};
 
+static void
+xdg_wm_base_ping(void* data, struct xdg_wm_base* xdg_wm_base, uint32_t serial)
+{
+  xdg_wm_base_pong(xdg_wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener xdg_wm_base_listener =
+{
+  xdg_wm_base_ping,
+};
+
 static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t id, const char *interface,
                                     uint32_t version) {
   if (strcmp(interface, "wl_compositor") == 0) {
     g_compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 1);
-  } else if (strcmp(interface, "wl_shell") == 0) {
-    g_shell = wl_registry_bind(registry, id, &wl_shell_interface, 1);
+  } else if (strcmp(interface, "xdg_wm_base") == 0) {
+    g_wm_base = wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+    xdg_wm_base_add_listener(g_wm_base, &xdg_wm_base_listener, NULL);
   } else if (strcmp(interface, "wl_shm") == 0) {
     g_shm = wl_registry_bind(registry, id, &wl_shm_interface, 1);
     wl_shm_add_listener(g_shm, &shm_listener, NULL);
@@ -194,17 +231,29 @@ static bool surface_create(struct wl_compositor *compositor,
   return true;
 }
 
-static bool shell_surface_create(struct wl_surface *surface,
-                                 struct wl_shell_surface **shell_surface) {
-  *shell_surface = wl_shell_get_shell_surface(g_shell, surface);
-  if (*shell_surface == NULL) {
-    fprintf(stderr, "Can't create shell surface\n");
+static bool xdg_shell_surface_create(struct wl_surface *g_surface,
+                                     struct xdg_surface **g_xdg_surface,
+                                     struct xdg_toplevel **g_xdg_toplevel, void *data) {
+  test_context *tc = data;
+
+  *g_xdg_surface = xdg_wm_base_get_xdg_surface(g_wm_base, g_surface);
+  xdg_surface_add_listener(*g_xdg_surface, &xdg_surface_listener, tc);
+
+  if (*g_xdg_surface == NULL) {
+    fprintf(stderr, "Can't create xdg-shell surface\n");
     return false;
   }
-  fprintf(stderr, "Created shell surface\n");
-  wl_shell_surface_set_toplevel(*shell_surface);
 
-  wl_shell_surface_add_listener(*shell_surface, &shell_surface_listener, NULL);
+  *g_xdg_toplevel = xdg_surface_get_toplevel(*g_xdg_surface);
+  xdg_toplevel_add_listener(*g_xdg_toplevel, &xdg_toplevel_listener, tc);
+
+  if (*g_xdg_toplevel == NULL) {
+    fprintf(stderr, "Can't create xdg-shell surface\n");
+    return false;
+  }
+  wl_surface_commit(g_surface);
+  wait_for_configure = true;
+
   return true;
 }
 
@@ -227,6 +276,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  if (g_wm_base == NULL) {
+    fprintf(stderr, "Can't find g_wm_base\n");
+    exit(1);
+  }
+
   if (!surface_create(g_compositor, &g_surface))
     exit(1);
 
@@ -235,11 +289,12 @@ int main(int argc, char **argv) {
   if (!set_frame_callback(&g_frame_callback, tc))
     exit(1);
 
-  if (!shell_surface_create(g_surface, &g_shell_surface))
+  if (!xdg_shell_surface_create(g_surface, &g_xdg_surface, &g_xdg_toplevel, tc))
     exit(1);
 
   create_window(tc);
-  redraw(NULL, NULL, 0);
+  if (!wait_for_configure)
+    redraw(tc, NULL, 0);
 
   while (wl_display_dispatch(g_display) != -1) {
     ;

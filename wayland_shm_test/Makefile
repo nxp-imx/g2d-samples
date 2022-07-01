@@ -17,11 +17,13 @@ PREFIX ?= /usr
 CC ?= $(CROSS_COMPILE)gcc
 
 LDFLAGS += -lg2d
+CFLAGS += -I ../os/linux/wayland
 
 OBJECTS += \
 	g2d_wayland_shm.o \
 	shm_test.o \
-	test_context.o
+	test_context.o \
+	../os/linux/wayland/xdg-shell-protocol.o
 
 $(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(WAYLAND)
