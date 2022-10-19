@@ -73,7 +73,10 @@ static int g2d_init(struct ctx *ctx, int width, int height,
 {
 	int can_warp;
 
-	g2d_open(&ctx->handle);
+	if (g2d_open(&ctx->handle)) {
+		printf("g2d_open fail.\n");
+		return -ENOTTY;
+	}
 
 	g2d_query_feature(&ctx->handle, G2D_WARP_DEWARP, &can_warp);
 	if (!can_warp) {
