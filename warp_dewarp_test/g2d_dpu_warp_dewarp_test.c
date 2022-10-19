@@ -78,7 +78,7 @@ static int g2d_init(struct ctx *ctx, int width, int height,
 		return -ENOTTY;
 	}
 
-	g2d_query_feature(&ctx->handle, G2D_WARP_DEWARP, &can_warp);
+	g2d_query_feature(ctx->handle, G2D_WARP_DEWARP, &can_warp);
 	if (!can_warp) {
 		fprintf(stderr, "G2D device cannot perform warp/dewarp operations\n");
 		return -1;
