@@ -17,19 +17,26 @@ PREFIX ?= /usr
 CC ?= $(CROSS_COMPILE)gcc
 
 LDFLAGS += -lg2d -lm
-CFLAGS += -I ../os/linux/wayland
 
 OBJECTS += \
 	g2d_wayland_dmabuf.o \
 	dmabuf_test.o \
 	test_context.o \
 	linux_dmabuf_wp.o \
-	../os/linux/wayland/xdg-shell-protocol.o
+	xdg-shell-protocol.o
 
-$(OBJECTS) : linux_dmabuf_wp.h
+$(OBJECTS) : linux_dmabuf_wp.h xdg-shell-client-protocol.h
 
 $(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(WAYLAND)
+
+xdg-shell-client-protocol.h:
+	wayland-scanner client-header \
+		$(SDKTARGETSYSROOT)/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $@
+
+xdg-shell-protocol.c: xdg-shell-client-protocol.h
+	wayland-scanner private-code \
+		$(SDKTARGETSYSROOT)/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $@
 
 .PHONY: install
 install: $(TARGET)
@@ -42,7 +49,7 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm -f linux_dmabuf_wp.h linux_dmabuf_wp.c $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
+	rm -f linux_dmabuf_wp.h linux_dmabuf_wp.c xdg-shell-client-protocol.h xdg-shell-protocol.c $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
 
 linux_dmabuf_wp.h: $(SDKTARGETSYSROOT)/usr/share/wayland-protocols/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml
 	wayland-scanner client-header $< $@

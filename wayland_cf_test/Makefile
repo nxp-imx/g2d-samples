@@ -17,16 +17,25 @@ PREFIX ?= /usr
 CC ?= $(CROSS_COMPILE)gcc
 
 LDFLAGS += -lg2d
-CFLAGS += -I ../os/linux/wayland
 
 OBJECTS += \
 	g2d_wayland_cf.o \
 	cf_test.o \
 	test_context.o \
-	../os/linux/wayland/xdg-shell-protocol.o
+	xdg-shell-protocol.o
+
+$(OBJECTS) : xdg-shell-client-protocol.h
 
 $(TARGET) : $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(WAYLAND)
+
+xdg-shell-client-protocol.h:
+	wayland-scanner client-header \
+		$(SDKTARGETSYSROOT)/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $@
+
+xdg-shell-protocol.c: xdg-shell-client-protocol.h
+	wayland-scanner private-code \
+		$(SDKTARGETSYSROOT)/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml $@
 
 .PHONY: install
 install: $(TARGET)
@@ -39,4 +48,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
+	rm -f xdg-shell-client-protocol.h xdg-shell-protocol.c $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET)
