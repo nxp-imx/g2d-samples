@@ -1,0 +1,7 @@
+Package:                     g2d-samples.git
+Outgoing License:            BSD-3-Clause
+License File:                COPYING
+Type of Content:             source
+Description and comments:    Graphics G2D sample applications
+Release Location:            https://github.com/NXPmicro/g2d-samples
+Origin:                      NXP (BSD-3-Clause)
