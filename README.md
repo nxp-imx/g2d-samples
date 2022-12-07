@@ -58,7 +58,7 @@ $./g2d_overlay_test
 -w   line stride of source and dest, bytes unit.
 
   ```
-$./g2d_yuv_test -s 1920x1080 -d 1920x1080 -w 3840x1920 -i PM5544_MK10_YUYV422.raw -f yuyv-yu12
+$./g2d_yuv_test -s 1024x768 -d 1024x768 -w 2048x1024  -i PM5544_MK10_YUYV422.raw -f yuyv-yu12
   ```
 
 **Building for QNX**
