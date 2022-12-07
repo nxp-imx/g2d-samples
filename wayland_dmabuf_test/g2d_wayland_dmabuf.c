@@ -172,6 +172,7 @@ static bool create_g2d_buffer(test_context *tc, struct client_buffer *buf) {
 
   buf->stride = stride;
 
+  g2d_close(g2dHandle);
   return true;
 }
 
@@ -181,7 +182,6 @@ static bool create_window(test_context *tc) {
   wl_surface_attach(g_surface, tc->dmabuffers[0]->wlbuffer, 0, 0);
   wl_surface_damage(g_surface, 0, 0, tc->window_width, tc->window_height);
   wl_surface_commit(g_surface);
-  test_setup(tc);
 
   return true;
 }
@@ -441,6 +441,17 @@ int main(int argc, char **argv) {
 
   wl_display_disconnect(g_display);
   fprintf(stderr, "Disconnected from display\n");
+
+  if(tc->dmabuffers[0]->g2d_data != NULL) {
+    g2d_free(tc->dmabuffers[0]->g2d_data);
+  }
+  if(tc->dmabuffers[1]->g2d_data != NULL) {
+    g2d_free(tc->dmabuffers[1]->g2d_data);
+  }
+
+  free(tc->dmabuffers[0]);
+  free(tc->dmabuffers[1]);
+  free(tc);
 
   exit(0);
 }

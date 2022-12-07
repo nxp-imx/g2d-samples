@@ -667,9 +667,6 @@ void test_teardown(test_context *tc) {
 
   g2d_close(td->g2d_handle);
 
-  free(tc->dmabuffers[0]);
-  free(tc->dmabuffers[1]);
-
   free(tc->user_data);
   tc->user_data = NULL;
 }
