@@ -99,6 +99,7 @@ static struct wl_buffer *create_buffer(test_context *tc) {
     return NULL;
   }
 
+  tc->g2d_data = g2d_data;
   tc->shm_data = g2d_data->buf_vaddr;
   tc->phy_data = g2d_data->buf_paddr;
 
@@ -107,6 +108,7 @@ static struct wl_buffer *create_buffer(test_context *tc) {
                                    WL_SHM_FORMAT_XRGB8888);
   // wl_buffer_add_listener(g_buffer, &buffer_listener, g_buffer);
   wl_shm_pool_destroy(pool);
+  g2d_close(g2dHandle);
   return buff;
 }
 
@@ -302,6 +304,9 @@ int main(int argc, char **argv) {
 
   wl_display_disconnect(g_display);
   fprintf(stderr, "Disconnected from display\n");
+
+  g2d_free(tc->g2d_data);
+  free(tc);
 
   exit(0);
 }
