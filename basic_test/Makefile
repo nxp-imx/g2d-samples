@@ -13,6 +13,7 @@ TARGET := g2d_basic_test
 PREFIX ?= /usr
 
 CC ?= $(CROSS_COMPILE)gcc
+CFLAGS += -DG2D_OPENCL=1
 LDFLAGS +=  -lg2d
 
 OBJECTS += \
