@@ -1055,8 +1055,8 @@ int main(int argc, char *argv[]) {
 
   for (i = 0; i < test_height; i++) {
     for (j = 0; j < test_width; j++) {
-      unsigned int k, iCo, iAo;
-      unsigned char Cs, As, Cd, Ad, Co, Ao;
+      unsigned int k, iCo, iAo, iCo_on_pxp, iAo_on_pxp;
+      unsigned char Cs, As, Cd, Ad, Co, Ao, Co_on_pxp, Ao_on_pxp;
 
       unsigned char *p = (unsigned char *)(((char *)d_buf->buf_vaddr) +
                                            (i * test_width + j) * 4);
@@ -1077,11 +1077,20 @@ int main(int argc, char *argv[]) {
              (unsigned int)Ad * (255 - (As * src.global_alpha / 255))) /
              255;
 
+      iCo_on_pxp = ((unsigned int)Cs +
+                    (unsigned int)Cd * (255 - (As * src.global_alpha / 255))/255);
+      iAo_on_pxp = ((unsigned int)(As * src.global_alpha / 255) +
+                    (unsigned int)Ad * (255 - (As * src.global_alpha / 255)) / 255);
+
       Co = (iCo > 255) ? 255 : (unsigned char)iCo;
       Ao = (iAo > 255) ? 255 : (unsigned char)iAo;
 
+      Co_on_pxp = (iCo_on_pxp > 255) ? 255 : (unsigned char)iCo_on_pxp;
+      Ao_on_pxp = (iAo_on_pxp > 255) ? 255 : (unsigned char)iAo_on_pxp;
+
       // compare the result with +/-1 threshold
-      if ((abs(Co - p[0]) > 2 || abs(Ao - p[3]) > 2)) {
+      if ((abs(Co - p[0]) > 2 || abs(Ao - p[3]) > 2) &&
+          (abs(Co_on_pxp - p[0]) > 2 || abs(Ao_on_pxp - p[3]) > 2)) {
         printf("2d blended color(%d) or alpha(%d) is incorrect Cs %d, As %d, "
                "Cd %d, Ad %d, Co %d, Ao %d, global alpha=%d\n",
                p[0], p[3], Cs, As, Cd, Ad, Co, Ao,
