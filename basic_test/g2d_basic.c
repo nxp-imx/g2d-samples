@@ -1620,7 +1620,7 @@ int main(int argc, char *argv[]) {
   src.width = (test_width > 1280) ? 1280 : test_width >> 1;
   src.height = (test_height > 720) ? 720 : test_height >> 1;
   src.rot = G2D_ROTATION_0;
-  src.format = G2D_RGBA8888;
+  src.format = G2D_BGRA8888;
 
   dst.left = 0;
   dst.top = 0;
@@ -1647,7 +1647,7 @@ int main(int argc, char *argv[]) {
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
          test_loop;
 
-  printf("resize format from rgba8888 to rgba8888, time %dus, %dfps, "
+  printf("resize format from bgra8888 to rgba8888, time %dus, %dfps, "
          "%dMpixel/s ........\n",
          diff, 1000000 / diff, test_width * test_height / diff);
 
@@ -1677,7 +1677,7 @@ int main(int argc, char *argv[]) {
   src.width = test_width;
   src.height = test_height;
   src.rot = G2D_ROTATION_0;
-  src.format = G2D_RGBA8888;
+  src.format = G2D_BGRA8888;
 
   dst.left = 0;
   dst.top = 0;
@@ -1704,7 +1704,7 @@ int main(int argc, char *argv[]) {
   diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
          test_loop;
 
-  printf("resize format from rgba8888 to rgba8888, time %dus, %dfps, "
+  printf("resize format from bgra8888 to rgba8888, time %dus, %dfps, "
          "%dMpixel/s ........\n",
          diff, 1000000 / diff, test_width * test_height / diff);
 
@@ -1734,7 +1734,7 @@ int main(int argc, char *argv[]) {
   src.width = test_width;
   src.height = test_height;
   src.rot = G2D_ROTATION_0;
-  src.format = G2D_RGBA8888;
+  src.format = G2D_BGRA8888;
 
   dst.left = 0;
   dst.top = 0;
