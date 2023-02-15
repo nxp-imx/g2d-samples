@@ -1763,6 +1763,87 @@ int main(int argc, char *argv[]) {
          src.left, src.top, src.right, src.bottom, dst.width, dst.height, diff,
          1000000 / diff, test_width * test_height / diff);
 
+
+  src.left = 0;
+  src.top = 0;
+  src.right = (test_width > 1280) ? 1280 : test_width >> 1;
+  src.bottom = (test_height > 720) ? 720 : test_height >> 1;
+  src.stride = (test_width > 1280) ? 1280 : test_width >> 1;
+  src.width = (test_width > 1280) ? 1280 : test_width >> 1;
+  src.height = (test_height > 720) ? 720 : test_height >> 1;
+
+  src.rot = G2D_ROTATION_0;
+  src.format = G2D_BGRA8888;
+
+  dst.left = 0;
+  dst.top = 0;
+  dst.right = test_height;
+  dst.bottom = test_width;
+  dst.stride = test_height;
+  dst.width = test_height;
+  dst.height = test_width;
+  dst.rot = G2D_ROTATION_90;
+  dst.format = G2D_RGBA8888;
+
+  printf("g2d 90 rotation with resize test from %dx%d to %dx%d: \n", src.width, src.height,
+         dst.width, dst.height);
+
+  gettimeofday(&tv1, NULL);
+
+  for (i = 0; i < test_loop; i++) {
+    g2d_blit(handle, &src, &dst);
+  }
+
+  g2d_finish(handle);
+
+  gettimeofday(&tv2, NULL);
+  diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
+         test_loop;
+
+  printf("rotation with resize format from bgra8888 to rgba8888, time %dus, %dfps, "
+         "%dMpixel/s ........\n",
+         diff, 1000000 / diff, test_width * test_height / diff);
+
+  src.left = 0;
+  src.top = 0;
+  src.right =  test_width;
+  src.bottom = test_height;
+  src.stride = test_width;
+  src.width =  test_width;
+  src.height = test_height;
+  src.rot = G2D_ROTATION_0;
+  src.format = G2D_BGRA8888;
+
+  dst.left = 0;
+  dst.top = 0;
+  dst.right = (test_width > 1280) ? 1280 : test_width >> 1;
+  dst.bottom = (test_height > 720) ? 720 : test_height >> 1;
+  dst.stride = (test_width > 1280) ? 1280 : test_width >> 1;
+  dst.width = (test_width > 1280) ? 1280 : test_width >> 1;
+  dst.height = (test_height > 720) ? 720 : test_height >> 1;
+  dst.rot = G2D_ROTATION_90;
+  dst.format = G2D_RGBA8888;
+
+  printf("g2d 90 rotation with resize test from %dx%d to %dx%d: \n", src.width, src.height,
+          dst.width, dst.height);
+
+  gettimeofday(&tv1, NULL);
+
+  for (i = 0; i < test_loop; i++) {
+    g2d_blit(handle, &src, &dst);
+  }
+
+  g2d_finish(handle);
+
+  gettimeofday(&tv2, NULL);
+  diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
+          test_loop;
+
+  printf("rotation with resize format from bgra8888 to rgba8888, time %dus, %dfps, "
+         "%dMpixel/s ........\n",
+          diff, 1000000 / diff, test_width * test_height / diff);
+
+
   /****************************************** test g2d_copy
    * *********************************************************/
   // set test data in src buffer
