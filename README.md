@@ -17,6 +17,7 @@ source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-aarch64-p
    Configure build for G2D implementation
   ```
 export BUILD_IMPLEMENTATION=dpu
+export BUILD_IMPLEMENTATION=dpu95
 export BUILD_IMPLEMENTATION=gpu-drm
 export BUILD_IMPLEMENTATION=gpu-fbdev
 export BUILD_IMPLEMENTATION=pxp

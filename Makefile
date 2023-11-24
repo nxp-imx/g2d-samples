@@ -19,6 +19,7 @@ ifndef BUILD_IMPLEMENTATION
     $(error BUILD_IMPLEMENTATION is not defined. $(BUILD_IMPLEMENTATION_USAGE_SUGGESTION))
 endif
 
+SUBDIRS_dpu95 = basic_test warp_dewarp_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
 SUBDIRS_dpu = basic_test tiling_test warp_dewarp_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
 SUBDIRS_gpu-drm = basic_test multiblit_test wayland_cf_test wayland_dmabuf_test wayland_shm_test yuv_test
 SUBDIRS_gpu-fbdev = basic_test overlay_test multiblit_test
