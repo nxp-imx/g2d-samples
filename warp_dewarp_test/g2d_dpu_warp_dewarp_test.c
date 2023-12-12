@@ -1,21 +1,33 @@
 /* vim: set ts=8 sw=8 tw=0 noet : */
 
-/* Copyright 2022 NXP */
+/* Copyright 2022-2023 NXP */
 
 #include <cairo.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
+#include <stdbool.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include "g2dExt.h"
 #include "warp_buffer.h"
+#include "warp_buffer_1080p.h"
+#include "warp_buffer_4k.h"
 #include "dewarp_buffer.h"
+#include "dewarp_buffer_1080p.h"
+#include "dewarp_buffer_4k.h"
+
+static const struct option longOptions[] = {
+	{"help", no_argument, NULL, 'h'},
+	{"mode", required_argument, NULL, 'm'},
+	{NULL, 0, NULL, 0}};
 
 struct ctx {
 	void *handle;
@@ -27,6 +39,18 @@ struct ctx {
 	struct g2d_buf *d_buf;
 	struct g2d_buf *coord_buf;
 };
+
+static void usage() {
+fprintf(stderr, "Usage: cmd [options]\n"
+				"\n"
+				"Options:\n"
+				"  -m, --mode  Warp Dewarp test mode.\n"
+				"      mode 1: 800x480\n"
+				"      mode 2: 1920x1080\n"
+				"      mode 3: 3840x2160\n"
+				"  -h, --help  Show this message.\n"
+				"\n");
+}
 
 static uint32_t get_buffer_size(uint16_t width, uint16_t height, enum g2d_format format)
 {
@@ -121,6 +145,10 @@ static int g2d_init(struct ctx *ctx, int width, int height,
 	ctx->coord.height = height;
 	ctx->coord.format = coord_format;
 	ctx->coord.bpp = 32;
+
+	if (coord_format == G2D_WARP_MAP_DDPNT) {
+		ctx->coord.bpp = 8;
+	}
 
 	return 0;
 }
@@ -329,13 +357,84 @@ static int create_test_buffer(void *buf, int width, int height)
 int main(int argc, char **argv)
 {
 	struct ctx ctx = {0,};
-	int fb_width, fb_height;
+	int ret;
+	int mode, fb_width, fb_height, coord_buffer_size;
+	void *warp_coord_absolute;
+	void *dewarp_coord_absolute;
+	struct timeval tv1, tv2;
+	int i, diff;
+	int test_loop = 16;
 
-	fb_width = 800;
-	fb_height = 480;
+	mode = 2;
+	fb_width = 1920;
+	fb_height = 1080;
+	coord_buffer_size = fb_width * fb_height;
+	warp_coord_absolute = warp_coord_absolute_1920_1080;
+	dewarp_coord_absolute = dewarp_coord_absolute_1920_1080;
 
-	if (g2d_init(&ctx, fb_width, fb_height,
-		     G2D_BGRA8888, G2D_BGRA8888, G2D_WARP_MAP_PNT) < 0) {
+	while (true) {
+		int optionIndex;
+		int ic =
+			getopt_long(argc, argv, "hm:1", longOptions, &optionIndex);
+		if (ic == -1) {
+			break;
+		}
+
+		switch (ic) {
+			case 'h':
+				usage();
+				return 0;
+				break;
+			case 'm':
+				if (!strcmp(optarg, "1")) {
+					mode = 1;
+					fb_width = 800;
+					fb_height = 480;
+					coord_buffer_size = fb_width * fb_height * 4;
+					warp_coord_absolute = warp_coord_absolute_800_480;
+					dewarp_coord_absolute = dewarp_coord_absolute_800_480;
+				} else if (!strcmp(optarg, "2")) {
+					mode = 2;
+					fb_width = 1920;
+					fb_height = 1080;
+					coord_buffer_size = fb_width * fb_height;
+					warp_coord_absolute = warp_coord_absolute_1920_1080;
+					dewarp_coord_absolute = dewarp_coord_absolute_1920_1080;
+				} else if (!strcmp(optarg, "3")) {
+					mode = 3;
+					fb_width = 3840;
+					fb_height = 2160;
+					coord_buffer_size = fb_width * fb_height;
+					warp_coord_absolute = warp_coord_absolute_3840_2160;
+					dewarp_coord_absolute = dewarp_coord_absolute_3840_2160;
+				} else {
+					fprintf(stderr, "Invalid mode '%s', must be 1, 2, 3\n", optarg);
+					return -EINVAL;
+				}
+				break;
+			default:
+				if (ic != '?') {
+					fprintf(stderr, "unexpected value 0x%x\n", ic);
+				}
+				return -EINVAL;
+		}
+	}
+
+	printf("Mode: %d, Width: %d, Height: %d\n", mode, fb_width, fb_height);
+
+	/* mode 1 uses PNT WarpCoordinateMode: x and y (sample points), 32 WarpBitsPerPixel.
+	 * Both mode 2 (default mode) and 3 use DD_PNT WarpCoordinateMode: ddx and ddy
+	 * (deltas between adjacent vectors), 8 WarpBitsPerPixel.
+	 */
+	if (mode == 1) {
+		ret = g2d_init(&ctx, fb_width, fb_height,
+			G2D_BGRA8888, G2D_BGRA8888, G2D_WARP_MAP_PNT);
+	} else {
+		ret = g2d_init(&ctx, fb_width, fb_height,
+			G2D_BGRA8888, G2D_BGRA8888, G2D_WARP_MAP_DDPNT);
+	}
+
+	if (ret < 0) {
 		g2d_close(ctx.handle);
 		exit(EXIT_FAILURE);
 	}
@@ -344,15 +443,39 @@ int main(int argc, char **argv)
 
 	/* copy the warping coordinates buffer to the contiguous allocated memory */
 	memcpy(ctx.coord_buf->buf_vaddr, warp_coord_absolute,
-		fb_width * fb_height * 4);
+		coord_buffer_size);
 
-	/* perform warp operation */
-	g2d_enable(ctx.handle, G2D_WARPING);
-	g2d_set_warp_coordinates(ctx.handle, &ctx.coord);
-	g2d_blit(ctx.handle, &ctx.src, &ctx.dst);
-	g2d_disable(ctx.handle, G2D_WARPING);
+	/* parameters for calibration settings required by DD_PNT WarpCoordinateMode */
+	if (mode == 2) {
+		ctx.coord.arb_start_x = 0x1fb58f;
+		ctx.coord.arb_start_y = 0x1fd5ec;
+		ctx.coord.arb_delta_xx = 0x22;
+		ctx.coord.arb_delta_xy = 0xf6;
+		ctx.coord.arb_delta_yx = 0xf6;
+		ctx.coord.arb_delta_yy = 0x2e;
+	} else if (mode == 3) {
+		ctx.coord.arb_start_x = 0x1f6b12;
+		ctx.coord.arb_start_y = 0x1fac07;
+		ctx.coord.arb_delta_xx = 0x22;
+		ctx.coord.arb_delta_xy = 0xf6;
+		ctx.coord.arb_delta_yx = 0xf6;
+		ctx.coord.arb_delta_yy = 0x2e;
+	}
 
-	g2d_finish(ctx.handle);
+	gettimeofday(&tv1, NULL);
+	for(i = 0; i < test_loop; i++){
+		/* perform warp operation */
+		g2d_enable(ctx.handle, G2D_WARPING);
+		g2d_set_warp_coordinates(ctx.handle, &ctx.coord);
+		g2d_blit(ctx.handle, &ctx.src, &ctx.dst);
+		g2d_disable(ctx.handle, G2D_WARPING);
+		g2d_finish(ctx.handle);
+	}
+	gettimeofday(&tv2, NULL);
+	diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
+			test_loop;
+	printf("g2d warp time %dus, %dfps, %dMpixel/s ........\n", diff,
+			1000000 / diff, fb_width * fb_height / diff);
 
 	/* write the warped buffer */
 	write_png_file("output_warped.png",
@@ -366,15 +489,38 @@ int main(int argc, char **argv)
 
 	/* copy the dewarping coordinates buffer to the contiguous allocated memory */
 	memcpy(ctx.coord_buf->buf_vaddr, dewarp_coord_absolute,
-	       fb_width * fb_height * 4);
+	       coord_buffer_size);
 
-	/* perform de-warp operation */
-	g2d_enable(ctx.handle, G2D_WARPING);
-	g2d_set_warp_coordinates(ctx.handle, &ctx.coord);
-	g2d_blit(ctx.handle, &ctx.src, &ctx.dst);
-	g2d_disable(ctx.handle, G2D_WARPING);
+	if (mode == 2) {
+		ctx.coord.arb_start_x = 0x286c;
+		ctx.coord.arb_start_y = 0x16a6;
+		ctx.coord.arb_delta_xx = 0x0e;
+		ctx.coord.arb_delta_xy = 0xfc;
+		ctx.coord.arb_delta_yx = 0xfc;
+		ctx.coord.arb_delta_yy = 0x14;
+	} else if (mode == 3) {
+		ctx.coord.arb_start_x = 0x50d4;
+		ctx.coord.arb_start_y = 0x2d64;
+		ctx.coord.arb_delta_xx = 0x0e;
+		ctx.coord.arb_delta_xy = 0xfa;
+		ctx.coord.arb_delta_yx = 0xfc;
+		ctx.coord.arb_delta_yy = 0x12;
+	}
 
-	g2d_finish(ctx.handle);
+	gettimeofday(&tv1, NULL);
+	for(i = 0; i < test_loop; i++){
+		/* perform de-warp operation */
+		g2d_enable(ctx.handle, G2D_WARPING);
+		g2d_set_warp_coordinates(ctx.handle, &ctx.coord);
+		g2d_blit(ctx.handle, &ctx.src, &ctx.dst);
+		g2d_disable(ctx.handle, G2D_WARPING);
+		g2d_finish(ctx.handle);
+	}
+	gettimeofday(&tv2, NULL);
+	diff = ((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)) /
+			test_loop;
+	printf("g2d dewarp time %dus, %dfps, %dMpixel/s ........\n", diff,
+			1000000 / diff, fb_width * fb_height / diff);
 
 	/* write the de-warped buffer */
 	write_png_file("output_dewarped.png",
