@@ -677,6 +677,10 @@ void paint_pixels(test_context *tc, struct client_buffer *client_buffer) {
   static time_t time_prev = 0;
   int diff = 0;
 
+  if (count == 0 && frames == 0) {
+    time_prev = time(NULL);
+  }
+
   g2d_fill_buffer(tc, client_buffer);
 
   ++frames;
