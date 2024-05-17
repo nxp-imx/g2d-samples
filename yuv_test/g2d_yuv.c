@@ -367,7 +367,7 @@ int main(int argc, char **argv) {
   printf("\nLinear conversion done %f ms  \n", t / TEST_LOOP);
 
   if (G2D_YUYV == dstFmt) {
-    fwrite(dstYBuf->buf_vaddr, 1, dstStride * dstHeight, fpout);
+    fwrite(dstYBuf->buf_vaddr, 1, dstStride * dstHeight * 2, fpout);
   } else if (G2D_NV12 == dstFmt) {
     fwrite(dstYBuf->buf_vaddr, 1, dstStride * dstHeight, fpout);
     fwrite(dstUBuf->buf_vaddr, 1, dstStride * dstHeight / 2, fpout);
