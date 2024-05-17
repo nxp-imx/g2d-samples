@@ -121,6 +121,8 @@ static bool parseFormat(const char *fmtStr, int *pSrcFmt, int *pDstFmt) {
     *pSrcFmt = G2D_NV12;
   else if (0 == strncmp(srcFmt, "yuyv", 4))
     *pSrcFmt = G2D_YUYV;
+  else if (0 == strncmp(srcFmt, "yu12", 4))
+    *pSrcFmt = G2D_I420;
   else {
     printf("unknown srcFmt=%s\n", srcFmt);
     return false;
@@ -130,7 +132,7 @@ static bool parseFormat(const char *fmtStr, int *pSrcFmt, int *pDstFmt) {
     *pDstFmt = G2D_NV12;
   else if (0 == strncmp(dstFmt, "yuyv", 4))
     *pDstFmt = G2D_YUYV;
-  else if (0 == strncmp(dstFmt, "yu12", 7))
+  else if (0 == strncmp(dstFmt, "yu12", 4))
     *pDstFmt = G2D_I420;
   else {
     printf("unknown dstFmt=%s\n", srcFmt);
@@ -334,6 +336,11 @@ int main(int argc, char **argv) {
     src->stride = srcWidth;
     src->planes[0] = srcYBuf->buf_paddr;
     src->planes[1] = srcUBuf->buf_paddr;
+  } else if (G2D_I420 == src->format) {
+    src->stride = srcWidth;
+    src->planes[0] = srcYBuf->buf_paddr;
+    src->planes[1] = srcUBuf->buf_paddr;
+    src->planes[2] = srcVBuf->buf_paddr;
   }
 
   dst->right = dstWidth;
