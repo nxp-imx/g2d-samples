@@ -12,7 +12,7 @@
 
 typedef struct {
   void *dst_vaddr;
-  int dst_paddr;
+  unsigned int dst_paddr;
 
   size_t dst_width;
   size_t dst_height;

@@ -13,7 +13,7 @@
 typedef struct {
   struct g2d_buf *g2d_data;
   void *shm_data;
-  int phy_data;
+  unsigned int phy_data;
   size_t width;
   size_t height;
 

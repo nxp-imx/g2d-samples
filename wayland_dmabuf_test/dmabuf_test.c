@@ -536,7 +536,7 @@ static void g2d_fill_buffer(test_context *tc,
   g2d_enable(g2dHandle, G2D_ARB_WARP);
 #endif
 
-  src->planes[0] = (int)src_layer->buf_paddr;
+  src->planes[0] = src_layer->buf_paddr;
   src->left = 0;
   src->top = 0;
   src->right = tc->window_width;   // 240
@@ -565,7 +565,7 @@ static void g2d_fill_buffer(test_context *tc,
 
   rot_degree -= 10.0f;
 
-  sec->planes[0] = (int)coord_layer->buf_paddr;
+  sec->planes[0] = coord_layer->buf_paddr;
   sec->left = 0;
   sec->top = 0;
   sec->right = 240;  // tc->window_width;

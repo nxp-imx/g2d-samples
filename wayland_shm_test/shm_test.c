@@ -60,7 +60,7 @@ static void g2d_fill_buffer(test_context *tc) {
   g2d_set_csc_matrix(g2dHandle, matrix);
 #endif
   buf = g2d_alloc(tc->width * tc->height * 4, 0);
-  src->planes[0] = (int)buf->buf_paddr;
+  src->planes[0] = buf->buf_paddr;
   src->left = 0;
   src->top = 0;
   src->right = tc->width;
