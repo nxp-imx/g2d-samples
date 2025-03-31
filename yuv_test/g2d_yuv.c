@@ -117,7 +117,9 @@ static bool parseFormat(const char *fmtStr, int *pSrcFmt, int *pDstFmt) {
     return false;
   }
 
-  if (0 == strncmp(srcFmt, "nv12", 4))
+  if (0 == strncmp(srcFmt, "rgba", 4))
+    *pSrcFmt = G2D_RGBA8888;
+  else if (0 == strncmp(srcFmt, "nv12", 4))
     *pSrcFmt = G2D_NV12;
   else if (0 == strncmp(srcFmt, "yuyv", 4))
     *pSrcFmt = G2D_YUYV;
@@ -128,7 +130,9 @@ static bool parseFormat(const char *fmtStr, int *pSrcFmt, int *pDstFmt) {
     return false;
   }
 
-  if (0 == strncmp(dstFmt, "nv12", 4))
+  if (0 == strncmp(dstFmt, "rgba", 4))
+    *pDstFmt = G2D_RGBA8888;
+  else if (0 == strncmp(dstFmt, "nv12", 4))
     *pDstFmt = G2D_NV12;
   else if (0 == strncmp(dstFmt, "yuyv", 4))
     *pDstFmt = G2D_YUYV;
@@ -265,9 +269,11 @@ int main(int argc, char **argv) {
   if (0 == dstStride)
     dstStride = dstWidth;
 
+  struct g2d_buf *srcBuf = NULL;
   struct g2d_buf *srcYBuf = NULL;
   struct g2d_buf *srcUBuf = NULL;
   struct g2d_buf *srcVBuf = NULL;
+  struct g2d_buf *dstBuf = NULL;
   struct g2d_buf *dstYBuf = NULL;
   struct g2d_buf *dstUBuf = NULL;
   struct g2d_buf *dstVBuf = NULL;
@@ -277,7 +283,10 @@ int main(int argc, char **argv) {
     return ret;
   }
 
-  if (G2D_YUYV == srcFmt) {
+  if (G2D_RGBA8888 == srcFmt) {
+    CreateG2DBuffer(&srcBuf, srcWidth * srcHeight * 4);
+    size_r = fread(srcBuf->buf_vaddr, 1, srcWidth * srcHeight * 4, fpin);
+  } else if (G2D_YUYV == srcFmt) {
     CreateG2DBuffer(&srcYBuf, srcWidth * 2 * srcHeight);
     size_r = fread(srcYBuf->buf_vaddr, 1, srcWidth * 2 * srcHeight, fpin);
   } else if (G2D_NV12 == srcFmt) {
@@ -296,7 +305,9 @@ int main(int argc, char **argv) {
     fseek(fpin, srcStride * srcHeight, SEEK_SET);
   }
 
-  if (G2D_YUYV == dstFmt) {
+  if (G2D_RGBA8888 == dstFmt) {
+    CreateG2DBuffer(&dstBuf, dstWidth * dstHeight * 4);
+  } else if (G2D_YUYV == dstFmt) {
     CreateG2DBuffer(&dstYBuf, dstWidth * 2 * dstHeight);
   } else if (G2D_NV12 == dstFmt) {
     CreateG2DBuffer(&dstYBuf, dstStride * dstHeight);
@@ -328,7 +339,11 @@ int main(int argc, char **argv) {
   src->width = srcWidth;
   src->height = srcHeight;
   src->format = srcFmt;
-  if (G2D_YUYV == src->format) {
+  src->stride = srcStride;
+
+  if (G2D_RGBA8888 == src->format) {
+    src->planes[0] = srcBuf->buf_paddr;
+  } else if (G2D_YUYV == src->format) {
     src->stride = srcStride;
     printf("change yuyv stride to %d\n", src->stride);
     src->planes[0] = srcYBuf->buf_paddr;
@@ -350,7 +365,9 @@ int main(int argc, char **argv) {
   dst->stride = dstStride;
   dst->format = dstFmt;
 
-  if (G2D_YUYV == dst->format) {
+  if (G2D_RGBA8888 == dst->format) {
+    dst->planes[0] = dstBuf->buf_paddr;
+  } else if (G2D_YUYV == dst->format) {
     dst->planes[0] = dstYBuf->buf_paddr;
   } else if (G2D_NV12 == dst->format) {
     dst->planes[0] = dstYBuf->buf_paddr;
@@ -373,7 +390,9 @@ int main(int argc, char **argv) {
 
   printf("\nLinear conversion done %f ms  \n", t / TEST_LOOP);
 
-  if (G2D_YUYV == dstFmt) {
+  if (G2D_RGBA8888 == dst->format) {
+    fwrite(dstBuf->buf_vaddr, 1, dstStride * dstHeight * 4, fpout);
+  } else if (G2D_YUYV == dstFmt) {
     fwrite(dstYBuf->buf_vaddr, 1, dstStride * dstHeight * 2, fpout);
   } else if (G2D_NV12 == dstFmt) {
     fwrite(dstYBuf->buf_vaddr, 1, dstStride * dstHeight, fpout);
@@ -393,6 +412,8 @@ int main(int argc, char **argv) {
 
   printf("\nClosing G2D Device...");
 
+  printf("free src...\n");
+  ReleaseG2DBuffer(srcBuf);
   printf("free srcY...\n");
   ReleaseG2DBuffer(srcYBuf);
   printf("free srcU...\n");
@@ -400,6 +421,8 @@ int main(int argc, char **argv) {
   printf("free srcV..\n");
   ReleaseG2DBuffer(srcVBuf);
 
+  printf("free dst...\n");
+  ReleaseG2DBuffer(dstBuf);
   printf("free dstY...\n");
   ReleaseG2DBuffer(dstYBuf);
   printf("free dstU...\n");
