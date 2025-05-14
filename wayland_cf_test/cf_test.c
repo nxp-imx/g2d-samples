@@ -212,6 +212,9 @@ void paint_pixels(test_context *tc) {
   static int count = -1;
   count++;
 
+  int pxp_v1_avail = 0;
+  g2d_query_hardware(tc, G2D_HARDWARE_PXP_V1, &pxp_v1_avail);
+
   if (count < FRAMES * 1) {
     if (!(count % FRAMES))
       fprintf(stderr, "Testing %s.", "G2D_ABGR8888");
@@ -230,10 +233,10 @@ void paint_pixels(test_context *tc) {
   }
   if (count < FRAMES * 3) {
     if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_BGR565");
+      fprintf(stderr, "\nTesting %s.", "G2D_RGBA8888");
     else
       fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_BGR565.raw", G2D_BGR565);
+    test_color_format(tc, "PM5544_MK10_RGBA8888.raw", G2D_RGBA8888);
     return;
   }
   if (count < FRAMES * 4) {
@@ -244,70 +247,76 @@ void paint_pixels(test_context *tc) {
     test_color_format(tc, "PM5544_MK10_BGRA8888.raw", G2D_BGRA8888);
     return;
   }
-  if (count < FRAMES * 5) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_NV12");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_NV12.raw", G2D_NV12);
-    return;
+  if(pxp_v1_avail == 0){
+    /* Remove unsupported formats for imx93 */
+    if (count < FRAMES * 5) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_NV12");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_NV12.raw", G2D_NV12);
+      return;
+    }
+    if (count < FRAMES * 6) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_NV16");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_NV16.raw", G2D_NV16);
+      return;
+    }
+    if (count < FRAMES * 7) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_NV21");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_NV21.raw", G2D_NV21);
+      return;
+    }
+    if (count < FRAMES * 8) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_NV61");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_NV61.raw", G2D_NV61);
+      return;
+    }
+    if (count < FRAMES * 9) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_RGB565");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_RGB565.raw", G2D_RGB565);
+      return;
+    }
+    if (count < FRAMES * 10) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_YUYV");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_YUYV422.raw", G2D_YUYV);
+      return;
+    }
+    if (count < FRAMES * 11) {
+      if (!(count % FRAMES))
+        fprintf(stderr, "\nTesting %s.", "G2D_UYVY");
+      else
+        fprintf(stderr, ".");
+      test_color_format(tc, "PM5544_MK10_UYVY422.raw", G2D_UYVY);
+      return;
+    }
   }
-  if (count < FRAMES * 6) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_NV16");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_NV16.raw", G2D_NV16);
-    return;
-  }
-  if (count < FRAMES * 7) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_NV21");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_NV21.raw", G2D_NV21);
-    return;
-  }
-  if (count < FRAMES * 8) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_NV61");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_NV61.raw", G2D_NV61);
-    return;
-  }
-  if (count < FRAMES * 9) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_RGB565");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_RGB565.raw", G2D_RGB565);
-    return;
-  }
-  if (count < FRAMES * 10) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_RGBA8888");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_RGBA8888.raw", G2D_RGBA8888);
-    return;
-  }
-  if (count < FRAMES * 11) {
-    if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_UYVY");
-    else
-      fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_UYVY422.raw", G2D_UYVY);
-    return;
-  }
+#if BUILD_IMPLEMENTATION != pxp
+  /* G2D_BGR565 is not supported by pxp */
   if (count < FRAMES * 12) {
     if (!(count % FRAMES))
-      fprintf(stderr, "\nTesting %s.", "G2D_YUYV");
+      fprintf(stderr, "\nTesting %s.", "G2D_BGR565");
     else
       fprintf(stderr, ".");
-    test_color_format(tc, "PM5544_MK10_YUYV422.raw", G2D_YUYV);
+    test_color_format(tc, "PM5544_MK10_BGR565.raw", G2D_BGR565);
     return;
   }
+#endif
 #if 0
   if (count < FRAMES * 13) {
     if (!(count % FRAMES))
