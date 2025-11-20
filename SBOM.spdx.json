@@ -1,0 +1,35 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-11-12T06:51:28Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "g2d-samples-LF_6.12.49_2.2.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/a5e60b0e-3993-440e-aa65-b9e1513fb6b7",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-a5e60b0e-3993-440e-aa65-b9e1513fb6b7",
+      "name": "g2d-samples",
+      "versionInfo": "LF_6.12.49_2.2.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-imx/g2d-samples -b lf-6.12.49-2.2.0",
+      "originator": "Organization: g2d-samples",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-a5e60b0e-3993-440e-aa65-b9e1513fb6b7"
+    }
+  ]
+}
