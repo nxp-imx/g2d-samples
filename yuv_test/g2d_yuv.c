@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
   double t;
   int srcWidth = 0, srcHeight = 0, dstWidth = 0, dstHeight = 0;
   char *inFile;
-  char *outFile = "output.yuv";
+  char *outFile = "output.raw";
   int srcFmt = G2D_YUYV;
   int dstFmt = G2D_YUYV;
   size_t size_r = 0;
