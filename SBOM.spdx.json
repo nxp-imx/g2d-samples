@@ -2,26 +2,65 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-11-12T06:51:28Z",
+    "created": "2026-01-26T02:05:15Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.26"
   },
-  "name": "g2d-samples-LF_6.12.49_2.2.0",
+  "name": "g2d-samples-LF_6.18.2_1.0.0",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/a5e60b0e-3993-440e-aa65-b9e1513fb6b7",
+  "documentNamespace": "https://nxp.com/spdx/33e7daaa-8d70-42eb-99f3-6d6316385033",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-a5e60b0e-3993-440e-aa65-b9e1513fb6b7",
+      "SPDXID": "SPDXRef-package-33e7daaa-8d70-42eb-99f3-6d6316385033",
       "name": "g2d-samples",
-      "versionInfo": "LF_6.12.49_2.2.0",
+      "versionInfo": "LF_6.18.2_1.0.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-imx/g2d-samples -b lf-6.12.49-2.2.0",
+      "downloadLocation": "https://github.com/nxp-imx/g2d-samples -b lf-6.18.2-1.0.0",
       "originator": "Organization: g2d-samples",
       "supplier": "NOASSERTION",
       "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-5a70a7fc-d3b2-4ee3-92b4-7a18186f587e",
+      "name": "Wayland",
+      "versionInfo": "1.23.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://wayland.freedesktop.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Wayland",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:almalinux_package:libwayland-client:1.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:almalinux_package:libwayland-cursor:1.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:almalinux_package:libwayland-egl:1.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:almalinux_package:libwayland-server:1.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:almalinux_package:wayland-devel:1.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -29,7 +68,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-a5e60b0e-3993-440e-aa65-b9e1513fb6b7"
+      "relatedSpdxElement": "SPDXRef-package-33e7daaa-8d70-42eb-99f3-6d6316385033"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-33e7daaa-8d70-42eb-99f3-6d6316385033",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-5a70a7fc-d3b2-4ee3-92b4-7a18186f587e"
     }
   ]
 }
